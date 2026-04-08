@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects · NExs</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="page-projects">
+  <header class="site-header">
+    <nav class="navbar" id="navbar" aria-label="Primary">
+      <a href="/" class="logo" aria-label="NExs home">
+        <span class="logo-mark">◆</span>
+        <span class="logo-text">NExs</span>
+      </a>
+
+      <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navMenu"
+        aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <ul class="nav-links" id="navMenu">
+        <li><a href="/">Home</a></li>
+        <li><a href="/#about">About</a></li>
+        <li><a href="/gallery">Gallery</a></li>
+        <li><a href="/projects" class="nav-link--current" aria-current="page">Projects</a></li>
+        <li><a href="/#team">Team</a></li>
+        <li><a href="/join">Join</a></li>
+        <li class="nav-cta-mobile"><a href="/join" class="btn btn-primary nav-cta-btn">Join NExs</a></li>
+      </ul>
+
+      <a href="/join" class="connect-btn">Join NExs</a>
+    </nav>
+  </header>
+
+  <main class="members-main">
+    <section class="members-hero" aria-labelledby="projects-page-title">
+      <div class="members-hero-bg" aria-hidden="true"></div>
+      <div class="members-hero-inner reveal">
+        <p class="members-hero-kicker">Build</p>
+        <h1 id="projects-page-title">OUR PROJECTS</h1>
+        <p class="members-hero-lead">Explore everything we have built so far. Tap a project to expand problem, solution, tech, and GitHub.</p>
+        <div class="members-hero-actions">
+          <a class="btn btn-primary" href="/join">Join a stream</a>
+          <a class="btn btn-ghost" href="/">Back to home</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section members-page" aria-label="Project list">
+      <div class="section-head reveal">
+        <span class="section-tag">Portfolio</span>
+        <h2>All projects</h2>
+        <p class="section-lead">This list is managed from the Admin dashboard.</p>
+      </div>
+
+      <div id="projectsGrid" role="list"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img class="footer-logo" src="/images/Logo/Name%20%26%20Logo%20AUTO.png"
+          alt="Nilgiri College of Arts & Science (Autonomous) logo" loading="lazy">
+        <div class="footer-brand-text">
+          <p class="footer-title">NeXs (Next eXperience Space)</p>
+          <p class="footer-subtitle">Associated with the Department of Multimedia, Nilgiri College of Arts &amp; Science
+            (Autonomous).</p>
+        </div>
+      </div>
+
+      <div class="footer-actions">
+        <a class="footer-mail" href="mailto:hello@nexs.community?subject=NeXs%20Enquiry">Email us</a>
+        <a class="footer-link" href="mailto:nexs.multimedia@gmail.com?subject=NeXs%20Student%20Enquiry">Gmail</a>
+        <a class="footer-link" href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a>
+        <a class="footer-link" href="/join">Join streams</a>
+        <a class="footer-link" href="/gallery">Gallery</a>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026 NeXs · Nilgiri College</p>
+    </div>
+  </footer>
+
+  <button type="button" id="themeToggle" class="theme-fab" aria-label="Switch theme" title="Toggle theme">
+    <span class="theme-fab-icon" aria-hidden="true"></span>
+  </button>
+
+  <script src="/js/main.js"></script>
+</body>
+
+</html>
+

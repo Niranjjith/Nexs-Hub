@@ -62,7 +62,8 @@
         tab === "team" ? "Meet Our Team" :
           tab === "joinRequests" ? "Join Requests" :
             tab === "members" ? "Members" :
-              tab === "announcements" ? "Announcements" : "Admin Settings";
+              tab === "announcements" ? "Announcements" :
+                tab === "projects" ? "Projects" : "Admin Settings";
 
     addBtn.style.display = tab === "joinRequests" || tab === "settings" ? "none" : "";
     loadTab();
@@ -211,6 +212,31 @@
         `)
         .join("");
       panelBody.innerHTML = renderTable(["Title", "Description", "Actions"], rows);
+      return;
+    }
+
+    if (activeTab === "projects") {
+      const data = await api("/admin/api/projects");
+      if (!data) return;
+      const rows = data
+        .map((p) => `
+          <tr>
+            <td>${p.image ? `<img class="admin-thumb" src="${esc(p.image)}" alt="" loading="lazy" />` : ""}</td>
+            <td>${esc(p.title || "")}</td>
+            <td><span class="pill">${esc(p.status || "")}</span></td>
+            <td style="max-width:260px; word-break:break-all">${esc(p.slug || "")}</td>
+            <td>${esc(p.order ?? 0)}</td>
+            <td>${p.active ? "Yes" : "No"}</td>
+            <td>
+              <div class="row-actions">
+                <button class="admin-btn admin-btn--ghost" data-action="edit" data-id="${p._id}">Edit</button>
+                <button class="admin-btn admin-btn--danger" data-action="delete" data-id="${p._id}">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `)
+        .join("");
+      panelBody.innerHTML = renderTable(["Image", "Title", "Status", "Slug", "Order", "Active", "Actions"], rows);
       return;
     }
 
@@ -493,6 +519,39 @@
       dialogFields.innerHTML =
         fieldInput("Title", "title", record?.title || "", { full: true }) +
         fieldInput("Description", "description", record?.description || "", { type: "textarea" });
+    } else if (activeTab === "projects") {
+      dialogTitle.textContent = record ? "Edit project" : "Add project";
+      dialogFields.innerHTML =
+        fieldInput("Title", "title", record?.title || "", { full: true }) +
+        fieldInput("Slug", "slug", record?.slug || "", { hint: "unique (eg smart-wayanad)" }) +
+        fieldInput("Short description", "shortDescription", record?.shortDescription || "", { type: "textarea", full: true }) +
+        `<label class="field" style="grid-column:1/-1">
+          <span>Upload image (optional)</span>
+          <input name="file" type="file" accept="image/*" />
+        </label>` +
+        fieldInput("Image URL", "image", record?.image || "", { full: true, hint: "or paste /uploads/.." }) +
+        fieldInput("GitHub link", "github", record?.github || "", { full: true, hint: "https://github.com/..." }) +
+        fieldInput("Problem", "problem", record?.problem || "", { type: "textarea", full: true }) +
+        fieldInput("Solution", "solution", record?.solution || "", { type: "textarea", full: true }) +
+        fieldInput("Languages (comma separated)", "languages", (record?.languages || []).join(", "), { full: true }) +
+        fieldInput("Tags (comma separated)", "tags", (record?.tags || []).join(", "), { full: true }) +
+        fieldInput("Status", "status", record?.status || "ongoing", {
+          type: "select",
+          options: [
+            { label: "Ongoing", value: "ongoing" },
+            { label: "Completed", value: "completed" },
+            { label: "Sold", value: "sold" },
+            { label: "Paused", value: "paused" },
+          ],
+        }) +
+        fieldInput("Order", "order", record?.order ?? 0, { type: "number" }) +
+        fieldInput("Active", "active", String(record?.active ?? true), {
+          type: "select",
+          options: [
+            { label: "True", value: "true" },
+            { label: "False", value: "false" },
+          ],
+        });
     }
 
     dialog.showModal();
@@ -537,6 +596,17 @@
     if (obj.active != null) obj.active = obj.active === "true";
     if (obj.commitment != null) obj.commitment = obj.commitment === "true";
 
+    if (activeTab === "projects") {
+      obj.languages = (obj.languages || "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      obj.tags = (obj.tags || "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+
     if (activeTab === "team") {
       obj.meta = (obj.meta || "")
         .split(",")
@@ -580,6 +650,7 @@
         if (activeTab === "media") obj.src = up.src;
         if (activeTab === "team") obj.image = up.src;
         if (activeTab === "members") obj.image = up.src;
+        if (activeTab === "projects") obj.image = up.src;
       }
     }
 
@@ -589,7 +660,8 @@
         activeTab === "team" ? "/admin/api/team" :
           activeTab === "joinRequests" ? "/admin/api/join-requests" :
             activeTab === "members" ? "/admin/api/members" :
-              "/admin/api/announcements";
+              activeTab === "announcements" ? "/admin/api/announcements" :
+                "/admin/api/projects";
 
     const url = isEdit ? base + "/" + editing.record._id : base;
     const method = isEdit ? "PUT" : "POST";
@@ -611,7 +683,8 @@
         activeTab === "team" ? "/admin/api/team" :
           activeTab === "joinRequests" ? "/admin/api/join-requests" :
             activeTab === "members" ? "/admin/api/members" :
-              "/admin/api/announcements";
+              activeTab === "announcements" ? "/admin/api/announcements" :
+                "/admin/api/projects";
     await api(base + "/" + id, { method: "DELETE" });
     loadTab();
   }
@@ -639,7 +712,8 @@
           activeTab === "team" ? "/admin/api/team" :
             activeTab === "joinRequests" ? "/admin/api/join-requests" :
               activeTab === "members" ? "/admin/api/members" :
-                "/admin/api/announcements";
+                activeTab === "announcements" ? "/admin/api/announcements" :
+                  "/admin/api/projects";
       const list = await api(base);
       const rec = (list || []).find((x) => x._id === id);
       openEditor("edit", rec);

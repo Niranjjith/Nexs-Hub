@@ -9,6 +9,7 @@ const Announcement = require("../models/Announcement");
 const TeamMember = require("../models/TeamMember");
 const Media = require("../models/Media");
 const JoinRequest = require("../models/JoinRequest");
+const Project = require("../models/Project");
 const AdminSettings = require("../models/AdminSettings");
 
 function requireAdmin(req, res, next) {
@@ -219,6 +220,23 @@ router.put("/api/join-requests/:id", requireAdmin, async (req, res) => {
 });
 router.delete("/api/join-requests/:id", requireAdmin, async (req, res) => {
   await JoinRequest.findByIdAndDelete(req.params.id);
+  res.json({ ok: true });
+});
+
+// Projects (CRUD)
+router.get("/api/projects", requireAdmin, async (req, res) => {
+  res.json(await Project.find().sort({ order: 1, createdAt: 1 }));
+});
+router.post("/api/projects", requireAdmin, async (req, res) => {
+  const doc = await Project.create(req.body);
+  res.json(doc);
+});
+router.put("/api/projects/:id", requireAdmin, async (req, res) => {
+  const doc = await Project.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  res.json(doc);
+});
+router.delete("/api/projects/:id", requireAdmin, async (req, res) => {
+  await Project.findByIdAndDelete(req.params.id);
   res.json({ ok: true });
 });
 

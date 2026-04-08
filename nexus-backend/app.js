@@ -50,6 +50,7 @@ app.use("/api/members", require("./routes/memberRoutes"));
 app.use("/api/announcements", require("./routes/announcementRoutes"));
 app.use("/api/team", require("./routes/teamRoutes"));
 app.use("/api/media", require("./routes/mediaRoutes"));
+app.use("/api/projects", require("./routes/projectRoutes"));
 app.use("/api/join-requests", require("./routes/joinRequestRoutes"));
 app.use("/admin", require("./routes/adminRoutes"));
 

@@ -720,6 +720,101 @@
   // If admin has created records, the public pages will render from API.
   // Otherwise, the existing hardcoded HTML remains.
   (function initDynamicContent() {
+    function renderProjectsFromAPI(list) {
+      var grid = document.getElementById("projectsGrid");
+      if (!grid) return false;
+      if (!Array.isArray(list) || list.length === 0) return false;
+
+      grid.innerHTML = "";
+
+      var items = list
+        .filter(function (p) {
+          return p && p.active !== false;
+        })
+        .sort(function (a, b) {
+          return (a.order || 0) - (b.order || 0);
+        });
+
+      // Public projects page: show a single numbered list (1..N).
+      var defaultImg = "/images/NCA07661.jpg";
+
+      function renderProjectCard(p) {
+          var slug = String(p.slug || "");
+          var card = document.createElement("details");
+          card.className = "project-item reveal";
+          if (slug) card.id = slug;
+
+          var title = esc(p.title || "Project");
+          var shortDesc = esc(p.shortDescription || p.description || "");
+          var img = p.image ? String(p.image) : defaultImg;
+          var problem = esc(p.problem || "");
+          var solution = esc(p.solution || "");
+          var status = esc(p.status || "");
+          var languages = Array.isArray(p.languages) ? p.languages : [];
+          var github = String(p.github || "").trim();
+          if (github && github.indexOf("http://") !== 0 && github.indexOf("https://") !== 0) {
+            github = "https://" + github;
+          }
+
+          card.innerHTML =
+            "<summary>" +
+            '<div class="project-num" aria-hidden="true"></div>' +
+            '<img class="project-thumb" src="' + esc(img) + '" alt="">' +
+            '<div class="project-main">' +
+            '<div class="project-top">' +
+            '<h3 class="project-title">' + title + "</h3>" +
+            (status ? '<span class="pill">' + status + "</span>" : "") +
+            "</div>" +
+            (shortDesc ? '<p class="project-desc">' + shortDesc + "</p>" : "") +
+            "</div>" +
+            "</summary>" +
+            '<div class="project-expand">' +
+            (problem ? '<div class="project-block"><h4>Problem</h4><p>' + problem + "</p></div>" : "") +
+            (solution ? '<div class="project-block"><h4>Solution</h4><p>' + solution + "</p></div>" : "") +
+            (languages.length
+              ? '<div class="project-block"><h4>Languages / Tech</h4><p>' +
+                esc(languages.join(", ")) +
+                "</p></div>"
+              : "") +
+            (github
+              ? '<div class="project-block"><h4>GitHub</h4><p><a class="project-link" href="' +
+                esc(github) +
+                '" target="_blank" rel="noopener noreferrer">' +
+                esc(github) +
+                "</a></p></div>"
+              : "") +
+            "</div>";
+
+          ensureVisible(card);
+          return card;
+      }
+
+      var listEl = document.createElement("div");
+      listEl.className = "projects-grid";
+      listEl.setAttribute("role", "list");
+      items.forEach(function (p, idx) {
+        var el = renderProjectCard(p);
+        var num = el.querySelector(".project-num");
+        if (num) num.textContent = String(idx + 1);
+        listEl.appendChild(el);
+      });
+      grid.appendChild(listEl);
+
+      // if user came via hash, open that item
+      try {
+        var hash = (window.location.hash || "").replace("#", "");
+        if (hash) {
+          var el = document.getElementById(hash);
+          if (el && el.tagName === "DETAILS") {
+            el.open = true;
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }
+      } catch (e) {}
+
+      return true;
+    }
+
     // Members
     fetch("/api/members")
       .then(function (res) {
@@ -743,66 +838,74 @@
     // Media
     var grids = document.querySelectorAll("#galleryGrid");
     if (!grids || !grids.length) {
-      buildSlidesFromDOM();
-      attachGalleryHandlers();
-      return;
+      // Not a gallery page (ex: /projects). Skip gallery rendering but continue other fetches.
+    } else {
+      fetch("/api/media")
+        .then(function (res) {
+          return res.ok ? res.json() : [];
+        })
+        .then(function (list) {
+          if (!Array.isArray(list) || list.length === 0) {
+            buildSlidesFromDOM();
+            attachGalleryHandlers();
+            return;
+          }
+
+          var isFull = document.body && document.body.classList.contains("page-gallery");
+          var items = list.filter(function (m) {
+            return m && m.active !== false;
+          });
+
+          if (!isFull) items = items.slice(0, 3);
+
+          grids.forEach(function (grid) {
+            grid.innerHTML = "";
+            items.forEach(function (m, idx) {
+              var btn = document.createElement("button");
+              btn.type = "button";
+              btn.className = "gallery-item reveal" + (m.type === "video" ? " gallery-item--video" : "");
+              btn.setAttribute("data-gallery-index", String(idx));
+              if (m.type === "video") {
+                btn.setAttribute("data-gallery-type", "video");
+                btn.setAttribute("data-gallery-src", m.src);
+                btn.setAttribute("aria-label", "Open gallery video");
+                btn.innerHTML =
+                  '<video class="gallery-video" src="' +
+                  m.src +
+                  '" muted playsinline preload="metadata"></video>' +
+                  '<span class="gallery-item-zoom">Play</span>';
+              } else {
+                btn.setAttribute("aria-label", "Open gallery image " + (idx + 1));
+                btn.innerHTML =
+                  '<img src="' +
+                  m.src +
+                  '" alt="' +
+                  (m.alt || "Gallery image") +
+                  '" width="400" height="300" loading="lazy">' +
+                  '<span class="gallery-item-zoom">View</span>';
+              }
+              grid.appendChild(btn);
+              ensureVisible(btn);
+            });
+          });
+
+          buildSlidesFromDOM();
+          attachGalleryHandlers();
+        })
+        .catch(function () {
+          buildSlidesFromDOM();
+          attachGalleryHandlers();
+        });
     }
 
-    fetch("/api/media")
+    // Projects (projects page)
+    fetch("/api/projects")
       .then(function (res) {
         return res.ok ? res.json() : [];
       })
       .then(function (list) {
-        if (!Array.isArray(list) || list.length === 0) {
-          buildSlidesFromDOM();
-          attachGalleryHandlers();
-          return;
-        }
-
-        var isFull = document.body && document.body.classList.contains("page-gallery");
-        var items = list.filter(function (m) {
-          return m && m.active !== false;
-        });
-
-        if (!isFull) items = items.slice(0, 3);
-
-        grids.forEach(function (grid) {
-          grid.innerHTML = "";
-          items.forEach(function (m, idx) {
-            var btn = document.createElement("button");
-            btn.type = "button";
-            btn.className = "gallery-item reveal" + (m.type === "video" ? " gallery-item--video" : "");
-            btn.setAttribute("data-gallery-index", String(idx));
-            if (m.type === "video") {
-              btn.setAttribute("data-gallery-type", "video");
-              btn.setAttribute("data-gallery-src", m.src);
-              btn.setAttribute("aria-label", "Open gallery video");
-              btn.innerHTML =
-                '<video class="gallery-video" src="' +
-                m.src +
-                '" muted playsinline preload="metadata"></video>' +
-                '<span class="gallery-item-zoom">Play</span>';
-            } else {
-              btn.setAttribute("aria-label", "Open gallery image " + (idx + 1));
-              btn.innerHTML =
-                '<img src="' +
-                m.src +
-                '" alt="' +
-                (m.alt || "Gallery image") +
-                '" width="400" height="300" loading="lazy">' +
-                '<span class="gallery-item-zoom">View</span>';
-            }
-            grid.appendChild(btn);
-            ensureVisible(btn);
-          });
-        });
-
-        buildSlidesFromDOM();
-        attachGalleryHandlers();
+        renderProjectsFromAPI(list);
       })
-      .catch(function () {
-        buildSlidesFromDOM();
-        attachGalleryHandlers();
-      });
+      .catch(function () {});
   })();
 })();

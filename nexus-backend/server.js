@@ -22,6 +22,9 @@ app.get("/join", (req, res) => res.sendFile(path.join(frontendDir, "join.html"))
 app.get("/members", (req, res) =>
   res.sendFile(path.join(frontendDir, "members.html"))
 );
+app.get("/projects", (req, res) =>
+  res.sendFile(path.join(frontendDir, "projects.html"))
+);
 
 const port = Number(process.env.PORT || 3000);
 app.listen(port, () => {

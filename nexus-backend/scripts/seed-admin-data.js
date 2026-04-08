@@ -20,6 +20,7 @@ const TeamMember = require(path.join(__dirname, "..", "models", "TeamMember"));
 const Media = require(path.join(__dirname, "..", "models", "Media"));
 const Announcement = require(path.join(__dirname, "..", "models", "Announcement"));
 const Member = require(path.join(__dirname, "..", "models", "Member"));
+const Project = require(path.join(__dirname, "..", "models", "Project"));
 
 // Note: MongoDB database names are case-sensitive on some setups.
 // Keep the default DB name consistent with existing local usage.
@@ -111,7 +112,7 @@ async function upsertTeam() {
       active: true,
     },
     miguel: {
-      name: "Sha Rahshima",
+      name: "Shahala Rahshima",
       role: "Partnerships",
       image: "images/team/Sha.jpg",
       bio:
@@ -253,6 +254,70 @@ async function upsertMembers() {
   }
 }
 
+function slugify(title) {
+  return String(title || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+async function upsertProjects() {
+  const items = [
+    { title: "SMART WAYANAD", status: "completed" },
+    { title: "RFID ATTENDANCE SYSTEM", status: "completed" },
+    { title: "AI ROAD ASSIST", status: "completed" },
+    { title: "BLOOD DONATION WEBSITE", status: "completed" },
+    { title: "ATTENDANCE APP (INSTEAD OF EMBASE)", status: "completed" },
+    { title: "WASTE MANAGEMENT SYSTEM", status: "completed" },
+    { title: "VIRTUAL CLASSROOM", status: "completed" },
+    { title: "HONEYPOT SENTINAL", status: "completed" },
+    { title: "AI ASSISTANT MALWARE TRIAGE SYSTEM", status: "completed" },
+    { title: "CHARBOT", status: "completed" },
+    { title: "AI BASED CROP DISEASE DETECT SYSTEM", status: "completed" },
+    { title: "AVESHAM – SELLED ONE", status: "sold" },
+    { title: "WHISPHER VOICE TRANSLATOR", status: "completed" },
+    { title: "COLLEGE FOOD BOOKING APP", status: "completed" },
+    { title: "GAME SERVER ARCHITECHTURE", status: "completed" },
+    { title: "CYBER-DECEPTION-DESKTOP", status: "completed" },
+    { title: "TELEMEDICINE APP", status: "completed" },
+    { title: "BLUTOOTH ATTENDACE SYSTEM", status: "completed" },
+    { title: "AUTOMATIC CAR CONTROLLED BY HANDS", status: "completed" },
+    { title: "OUTPASS SYSTEM", status: "completed" },
+    { title: "ENERGY ZIP – UI/UX", status: "completed" },
+    { title: "QUIZ SYSTEM", status: "completed" },
+    { title: "ESCAPE BANDIPUR", status: "completed" },
+    { title: "ZICADA HOSPITALITY", status: "completed" },
+    { title: "THEFT ALARM", status: "completed" },
+    { title: "SIGN TO SOUND(ONGOING)", status: "ongoing" },
+    { title: "IOT BASED PLAT MONITORING SYSTEM", status: "ongoing" }
+  ];
+
+  for (let i = 0; i < items.length; i++) {
+    const p = items[i];
+    const slug = slugify(p.title);
+    await Project.findOneAndUpdate(
+      { slug },
+      {
+        title: p.title,
+        slug,
+        shortDescription: "Edit this in Admin (Projects tab).",
+        description: "",
+        image: "/images/NCA07661.jpg",
+        github: "",
+        problem: "Add the problem statement for this project (Admin → Projects).",
+        solution: "Add the solution you built for this project (Admin → Projects).",
+        languages: [],
+        tags: [],
+        status: p.status,
+        order: (i + 1) * 10,
+        active: true,
+      },
+      { upsert: true, new: true }
+    );
+  }
+}
+
 async function main() {
   console.log("Seeding admin data…");
   await mongoose.connect(MONGODB_URI);
@@ -260,6 +325,7 @@ async function main() {
   await upsertMedia();
   await upsertAnnouncements();
   await upsertMembers();
+  await upsertProjects();
   console.log("Seed complete.");
   await mongoose.disconnect();
 }

@@ -5,7 +5,9 @@
   "description": "NExs Hub (static frontend + Express/Mongo backend for Vercel).",
   "scripts": {
     "start": "node nexus-backend/server.js",
-    "seed": "node nexus-backend/scripts/seed-admin-data.js"
+    "seed": "node nexus-backend/scripts/seed-admin-data.js",
+    "reset-admin": "node nexus-backend/scripts/reset-admin-credentials.js",
+    "seed-members": "node nexus-backend/scripts/seed-members-names.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

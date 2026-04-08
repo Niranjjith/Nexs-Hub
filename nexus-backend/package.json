@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "seed": "node scripts/seed-admin-data.js"
+    "seed": "node scripts/seed-admin-data.js",
+    "reset-admin": "node scripts/reset-admin-credentials.js",
+    "seed-members": "node scripts/seed-members-names.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
