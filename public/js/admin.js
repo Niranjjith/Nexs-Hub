@@ -52,7 +52,10 @@
     panelTitle.textContent =
       tab === "media" ? "Gallery Media" :
         tab === "team" ? "Meet Our Team" :
-          tab === "members" ? "Members" : "Announcements";
+          tab === "joinRequests" ? "Join Requests" :
+            tab === "members" ? "Members" : "Announcements";
+
+    addBtn.style.display = tab === "joinRequests" ? "none" : "";
     loadTab();
   }
 
@@ -120,6 +123,33 @@
       return;
     }
 
+    if (activeTab === "joinRequests") {
+      const data = await api("/admin/api/join-requests");
+      if (!data) return;
+      const rows = data
+        .map((r) => `
+          <tr>
+            <td><span class="pill">${esc(r.status || "new")}</span></td>
+            <td>${esc(r.name)}</td>
+            <td style="max-width:260px; word-break:break-all">${esc(r.email)}</td>
+            <td>${esc(r.phone || "")}</td>
+            <td>${esc(r.department || "")}</td>
+            <td>${esc(r.yearOfStudy || "")}</td>
+            <td>${esc(r.preferredDomain || "")}</td>
+            <td>${esc(r.hoursPerWeek || "")}</td>
+            <td>
+              <div class="row-actions">
+                <button class="admin-btn admin-btn--ghost" data-action="edit" data-id="${r._id}">Edit</button>
+                <button class="admin-btn admin-btn--danger" data-action="delete" data-id="${r._id}">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `)
+        .join("");
+      panelBody.innerHTML = renderTable(["Status", "Name", "Email", "Phone", "Dept", "Year", "Domain", "Hours/wk", "Actions"], rows);
+      return;
+    }
+
     if (activeTab === "members") {
       const data = await api("/admin/api/members");
       if (!data) return;
@@ -129,7 +159,11 @@
             <td>${esc(m.name)}</td>
             <td>${esc(m.role)}</td>
             <td>${esc(m.department)}</td>
-            <td style="max-width:240px; word-break:break-all">${esc(m.linkedin || "")}</td>
+            <td style="max-width:220px; word-break:break-all">${esc(m.image || "")}</td>
+            <td style="max-width:220px; word-break:break-all">${esc(m.linkedin || "")}</td>
+            <td style="max-width:220px; word-break:break-all">${esc(m.github || "")}</td>
+            <td>${esc(m.order ?? 0)}</td>
+            <td>${m.active ? "Yes" : "No"}</td>
             <td>
               <div class="row-actions">
                 <button class="admin-btn admin-btn--ghost" data-action="edit" data-id="${m._id}">Edit</button>
@@ -139,7 +173,7 @@
           </tr>
         `)
         .join("");
-      panelBody.innerHTML = renderTable(["Name", "Role", "Department", "LinkedIn", "Actions"], rows);
+      panelBody.innerHTML = renderTable(["Name", "Role", "Department", "Image", "LinkedIn", "GitHub", "Order", "Active", "Actions"], rows);
       return;
     }
 
@@ -255,7 +289,65 @@
         fieldInput("Name", "name", record?.name || "") +
         fieldInput("Role", "role", record?.role || "") +
         fieldInput("Department", "department", record?.department || "") +
-        fieldInput("LinkedIn", "linkedin", record?.linkedin || "", { full: true });
+        `<label class="field" style="grid-column:1/-1">
+          <span>Upload photo (optional)</span>
+          <input name="file" type="file" accept="image/*" />
+        </label>` +
+        fieldInput("Image URL", "image", record?.image || "", { full: true, hint: "or paste /uploads/.." }) +
+        fieldInput("Bio", "bio", record?.bio || "", { type: "textarea", full: true }) +
+        fieldInput("LinkedIn", "linkedin", record?.linkedin || "", { full: true }) +
+        fieldInput("GitHub", "github", record?.github || "", { full: true }) +
+        fieldInput("Order", "order", record?.order ?? 0, { type: "number" }) +
+        fieldInput("Active", "active", String(record?.active ?? true), {
+          type: "select",
+          options: [
+            { label: "True", value: "true" },
+            { label: "False", value: "false" },
+          ],
+        });
+    } else if (activeTab === "joinRequests") {
+      dialogTitle.textContent = record ? "Edit join request" : "Join request";
+      dialogFields.innerHTML =
+        fieldInput("Name", "name", record?.name || "", { full: true }) +
+        fieldInput("Email", "email", record?.email || "", { full: true }) +
+        fieldInput("Phone", "phone", record?.phone || "") +
+        fieldInput("Department", "department", record?.department || "") +
+        fieldInput("Year of Study", "yearOfStudy", record?.yearOfStudy || "") +
+        fieldInput("Register Number / ID", "registerNumber", record?.registerNumber || "") +
+        fieldInput("Stream", "stream", record?.stream || "") +
+        fieldInput("Preferred Domain", "preferredDomain", record?.preferredDomain || "") +
+        fieldInput("Hours per week", "hoursPerWeek", record?.hoursPerWeek || "") +
+        fieldInput("Skill Level", "skillLevel", record?.skillLevel || "", {
+          type: "select",
+          options: [
+            { label: "—", value: "" },
+            { label: "Beginner", value: "Beginner" },
+            { label: "Intermediate", value: "Intermediate" },
+            { label: "Advanced", value: "Advanced" },
+          ],
+        }) +
+        fieldInput("Status", "status", record?.status || "new", {
+          type: "select",
+          options: [
+            { label: "New", value: "new" },
+            { label: "Contacted", value: "contacted" },
+            { label: "Accepted", value: "accepted" },
+            { label: "Rejected", value: "rejected" },
+          ],
+        }) +
+        fieldInput("Skills", "skills", record?.skills || "", { type: "textarea", full: true }) +
+        fieldInput("Motivation", "motivation", record?.motivation || "", { type: "textarea", full: true }) +
+        fieldInput("GitHub", "github", record?.github || "", { full: true }) +
+        fieldInput("Portfolio / LinkedIn", "portfolio", record?.portfolio || "", { full: true }) +
+        fieldInput("Commitment", "commitment", String(record?.commitment ?? false), {
+          type: "select",
+          options: [
+            { label: "True", value: "true" },
+            { label: "False", value: "false" },
+          ],
+        }) +
+        fieldInput("Message", "message", record?.message || "", { type: "textarea", full: true }) +
+        fieldInput("Admin Notes", "adminNotes", record?.adminNotes || "", { type: "textarea", full: true });
     } else if (activeTab === "announcements") {
       dialogTitle.textContent = record ? "Edit announcement" : "Add announcement";
       dialogFields.innerHTML =
@@ -278,6 +370,7 @@
     // type conversions
     if (obj.order != null) obj.order = Number(obj.order);
     if (obj.active != null) obj.active = obj.active === "true";
+    if (obj.commitment != null) obj.commitment = obj.commitment === "true";
 
     if (activeTab === "team") {
       obj.meta = (obj.meta || "")
@@ -304,6 +397,7 @@
       if (up && up.src) {
         if (activeTab === "media") obj.src = up.src;
         if (activeTab === "team") obj.image = up.src;
+        if (activeTab === "members") obj.image = up.src;
       }
     }
 
@@ -311,8 +405,9 @@
     const base =
       activeTab === "media" ? "/admin/api/media" :
         activeTab === "team" ? "/admin/api/team" :
-          activeTab === "members" ? "/admin/api/members" :
-            "/admin/api/announcements";
+          activeTab === "joinRequests" ? "/admin/api/join-requests" :
+            activeTab === "members" ? "/admin/api/members" :
+              "/admin/api/announcements";
 
     const url = isEdit ? base + "/" + editing.record._id : base;
     const method = isEdit ? "PUT" : "POST";
@@ -332,8 +427,9 @@
     const base =
       activeTab === "media" ? "/admin/api/media" :
         activeTab === "team" ? "/admin/api/team" :
-          activeTab === "members" ? "/admin/api/members" :
-            "/admin/api/announcements";
+          activeTab === "joinRequests" ? "/admin/api/join-requests" :
+            activeTab === "members" ? "/admin/api/members" :
+              "/admin/api/announcements";
     await api(base + "/" + id, { method: "DELETE" });
     loadTab();
   }
@@ -359,8 +455,9 @@
       const base =
         activeTab === "media" ? "/admin/api/media" :
           activeTab === "team" ? "/admin/api/team" :
-            activeTab === "members" ? "/admin/api/members" :
-              "/admin/api/announcements";
+            activeTab === "joinRequests" ? "/admin/api/join-requests" :
+              activeTab === "members" ? "/admin/api/members" :
+                "/admin/api/announcements";
       const list = await api(base);
       const rec = (list || []).find((x) => x._id === id);
       openEditor("edit", rec);

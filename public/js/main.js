@@ -119,6 +119,20 @@
     else el.classList.add("is-visible");
   }
 
+  function esc(s) {
+    return String(s || "").replace(/[&<>"']/g, function (c) {
+      return (
+        {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          "\"": "&quot;",
+          "'": "&#39;",
+        }[c] || c
+      );
+    });
+  }
+
   // ——— Team profile modal ———
   var TEAM_PROFILES = {
     alex: {
@@ -605,26 +619,84 @@
     }
   });
 
-  // ——— Optional: members / announcements (admin or other pages) ———
-  const membersEl = document.getElementById("members");
-  if (membersEl) {
-    fetch("/api/members")
-      .then(function (res) {
-        return res.json();
-      })
-      .then(function (data) {
-        data.forEach(function (member) {
-          membersEl.innerHTML +=
-            "<div class=\"card\"><h3>" +
-            member.name +
-            "</h3><p>" +
-            member.role +
-            "</p><p>" +
-            member.department +
-            "</p></div>";
-        });
-      })
-      .catch(function () {});
+  // ——— Members (preview on home + full list on /members) ———
+  function renderMembersFromAPI(list) {
+    var grid = document.getElementById("membersGrid");
+    if (!grid) return false;
+    if (!Array.isArray(list) || list.length === 0) return false;
+
+    var isFull = document.body && document.body.classList.contains("page-members");
+    var items = list.filter(function (m) {
+      return m && m.active !== false;
+    });
+
+    if (!isFull) items = items.slice(0, 3);
+
+    grid.innerHTML = "";
+
+    items.forEach(function (m, idx) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "member-card reveal";
+      btn.setAttribute("role", "listitem");
+      btn.setAttribute("data-member-index", String(idx));
+      btn.setAttribute("aria-expanded", "false");
+
+      var name = esc(m.name || "Member");
+      var role = esc(m.role || "");
+      var dept = esc(m.department || "");
+      var bio = esc(m.bio || "Bio coming soon.");
+      var img = m.image ? String(m.image) : "";
+      var linkedin = m.linkedin ? String(m.linkedin) : "";
+      var github = m.github ? String(m.github) : "";
+
+      btn.innerHTML =
+        '<span class="member-media">' +
+        (img
+          ? '<img class="member-img" src="' + esc(img) + '" alt="Photo of ' + name + '" loading="lazy">'
+          : '<span class="member-img member-img--placeholder" aria-hidden="true"></span>') +
+        "</span>" +
+        '<span class="member-main">' +
+        '<span class="member-name">' +
+        name +
+        "</span>" +
+        (role ? '<span class="member-role">' + role + "</span>" : "") +
+        (dept ? '<span class="member-dept">' + dept + "</span>" : "") +
+        '<span class="member-hint">Tap for bio</span>' +
+        "</span>" +
+        '<span class="member-expand" hidden>' +
+        '<span class="member-bio">' +
+        bio +
+        "</span>" +
+        '<span class="member-links">' +
+        (linkedin ? '<a class="member-link" href="' + esc(linkedin) + '" target="_blank" rel="noopener noreferrer">LinkedIn</a>' : "") +
+        (github ? '<a class="member-link" href="' + esc(github) + '" target="_blank" rel="noopener noreferrer">GitHub</a>' : "") +
+        "</span>" +
+        "</span>";
+
+      grid.appendChild(btn);
+      ensureVisible(btn);
+    });
+
+    // expand / collapse
+    grid.addEventListener("click", function (e) {
+      var card = e.target.closest(".member-card");
+      if (!card) return;
+      var expanded = card.getAttribute("aria-expanded") === "true";
+      var all = Array.from(grid.querySelectorAll(".member-card"));
+      all.forEach(function (c) {
+        c.setAttribute("aria-expanded", "false");
+        var ex = c.querySelector(".member-expand");
+        if (ex) ex.hidden = true;
+      });
+      if (!expanded) {
+        card.setAttribute("aria-expanded", "true");
+        var expandEl = card.querySelector(".member-expand");
+        if (expandEl) expandEl.hidden = false;
+      }
+    });
+
+    return true;
   }
 
   const announcementsEl = document.getElementById("announcements");
@@ -646,6 +718,16 @@
   // If admin has created records, the public pages will render from API.
   // Otherwise, the existing hardcoded HTML remains.
   (function initDynamicContent() {
+    // Members
+    fetch("/api/members")
+      .then(function (res) {
+        return res.ok ? res.json() : [];
+      })
+      .then(function (list) {
+        renderMembersFromAPI(list);
+      })
+      .catch(function () {});
+
     // Team
     fetch("/api/team")
       .then(function (res) {

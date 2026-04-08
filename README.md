@@ -15,6 +15,7 @@ Student-driven innovation community website + admin dashboard for content manage
   - CRUD for:
     - Gallery media (image/video)
     - Team members (bio, projects, links)
+    - Join requests (new joiners)
     - Members
     - Announcements
   - File uploads (images/videos) stored under `public/uploads`
@@ -115,6 +116,10 @@ You can add/edit:
 ### Members / Announcements
 
 Basic add/edit/delete with inline dialogs.
+
+### Join Requests (new joiners)
+
+Users can submit the Join form on `/join`. Submissions are stored in MongoDB and appear under the **Join Requests** tab in the admin dashboard.
 
 ## API endpoints
 

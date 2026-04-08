@@ -26,6 +26,7 @@ app.use("/api/members", require("./routes/memberRoutes"));
 app.use("/api/announcements", require("./routes/announcementRoutes"));
 app.use("/api/team", require("./routes/teamRoutes"));
 app.use("/api/media", require("./routes/mediaRoutes"));
+app.use("/api/join-requests", require("./routes/joinRequestRoutes"));
 app.use("/admin", require("./routes/adminRoutes"));
 
 app.get("/", (req,res)=>{
@@ -38,6 +39,10 @@ app.get("/gallery", (req,res)=>{
 
 app.get("/join", (req,res)=>{
     res.sendFile(path.join(__dirname,"views/join.html"));
+});
+
+app.get("/members", (req,res)=>{
+    res.sendFile(path.join(__dirname,"views/members.html"));
 });
 
 app.get("/admin/login", (req,res)=>{

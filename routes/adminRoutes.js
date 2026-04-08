@@ -6,6 +6,7 @@ const Member = require("../models/Member");
 const Announcement = require("../models/Announcement");
 const TeamMember = require("../models/TeamMember");
 const Media = require("../models/Media");
+const JoinRequest = require("../models/JoinRequest");
 
 function requireAdmin(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
@@ -123,6 +124,18 @@ router.put("/api/media/:id", requireAdmin, async (req, res) => {
 });
 router.delete("/api/media/:id", requireAdmin, async (req, res) => {
   await Media.findByIdAndDelete(req.params.id);
+  res.json({ ok: true });
+});
+
+router.get("/api/join-requests", requireAdmin, async (req, res) => {
+  res.json(await JoinRequest.find().sort({ createdAt: -1 }));
+});
+router.put("/api/join-requests/:id", requireAdmin, async (req, res) => {
+  const doc = await JoinRequest.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  res.json(doc);
+});
+router.delete("/api/join-requests/:id", requireAdmin, async (req, res) => {
+  await JoinRequest.findByIdAndDelete(req.params.id);
   res.json({ ok: true });
 });
 
