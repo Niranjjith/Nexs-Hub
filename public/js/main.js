@@ -1,6 +1,44 @@
 (function () {
   "use strict";
 
+  // ——— Theme toggle (Light / Dark) ———
+  const themeToggle = document.getElementById("themeToggle");
+  const rootEl = document.documentElement;
+
+  function applyTheme(theme) {
+    const isDark = theme === "dark";
+    rootEl.classList.toggle("theme-dark", isDark);
+
+    if (themeToggle) {
+      themeToggle.setAttribute(
+        "aria-label",
+        isDark ? "Switch to light theme" : "Switch to dark theme"
+      );
+    }
+  }
+
+  (function initTheme() {
+    if (!themeToggle) return;
+    let saved = null;
+    try {
+      saved = window.localStorage ? localStorage.getItem("nexs-theme") : null;
+    } catch (e) {}
+
+    const prefersDark =
+      window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    const initialTheme = saved || (prefersDark ? "dark" : "light");
+    applyTheme(initialTheme);
+
+    themeToggle.addEventListener("click", function () {
+      const next = rootEl.classList.contains("theme-dark") ? "light" : "dark";
+      applyTheme(next);
+      try {
+        localStorage.setItem("nexs-theme", next);
+      } catch (e) {}
+    });
+  })();
+
   // ——— Navbar scroll + mobile menu ———
   const navbar = document.getElementById("navbar");
   const navToggle = document.getElementById("navToggle");
@@ -104,7 +142,7 @@
     jordan: {
       name: "Nezal Muhammed",
       role: "Programs Lead",
-      image: "images/team/nxl.jpg",
+      image: "/images/team/nxl.jpg",
       bio:
         "Jordan runs workshops, office hours, and the event calendar. They translate messy ideas into schedules people can actually follow—without killing creativity.",
       meta: ["Programs", "Events", "CS & HCI"],
@@ -130,7 +168,7 @@
     sam: {
       name: "Ansar Ahamed",
       role: "Tech Mentor",
-      image: "/images/team/ansar.jpeg",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=600&q=80",
       bio:
         "Sam is our go-to for architecture reviews, security basics, and shipping on a deadline. They have shipped production APIs and enjoy helping teams pick the boring technology that scales.",
       meta: ["Backend & DevOps", "Mentor", "Security"],
@@ -154,9 +192,9 @@
       ],
     },
     priya: {
-      name: "Vivek Jayapal",
+      name: "Athul Isham",
       role: "Design Lead",
-      image: "/images/team/vivek.jpg",
+      image: "/images/team/Athul.jpg",
       bio:
         "Priya leads UX critiques, design systems, and accessibility checks before demo day. She bridges designers and engineers so interfaces stay coherent under real data.",
       meta: ["UX / UI", "Design systems", "A11y"],
@@ -182,7 +220,7 @@
     miguel: {
       name: "Shahala Rahshima",
       role: "Partnerships",
-      image: "/images/team/Shahala.jpg",
+      image: "images/team/Shahala.jpg",
       bio:
         "Miguel connects NExs with labs, startups, and alumni who want to mentor or hire. He negotiates lightweight agreements so students can use real datasets and tools ethically.",
       meta: ["Partnerships", "Legal basics", "Alumni"],
@@ -208,9 +246,9 @@
     nina: {
       name: "Rifad",
       role: "Community",
-      image: "images/team/rifad.jpg",
+      image: "/images/team/Rifu.jpg",
       bio:
-        "Nina grows an inclusive culture: onboarding newcomers, moderating chat, and celebrating wins. She makes sure every voice gets heard in critiques and retros.",
+        "Iam grows an inclusive culture: onboarding newcomers, moderating chat, and celebrating wins. She makes sure every voice gets heard in critiques and retros.",
       meta: ["Community", "Comms", "DEI"],
       projects: [
         {
