@@ -9,6 +9,13 @@
 const mongoose = require("mongoose");
 const path = require("path");
 
+// Load `nexus-backend/.env` for local seeding (so seed uses the same DB as the server).
+// On Vercel, use Project Environment Variables.
+if (!process.env.VERCEL) {
+  // eslint-disable-next-line global-require
+  require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
+}
+
 const TeamMember = require(path.join(__dirname, "..", "models", "TeamMember"));
 const Media = require(path.join(__dirname, "..", "models", "Media"));
 const Announcement = require(path.join(__dirname, "..", "models", "Announcement"));

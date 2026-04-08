@@ -1,5 +1,12 @@
-const app = require("./app");
+// Load environment variables from `nexus-backend/.env` for local dev.
+// (Vercel uses Project Environment Variables instead of .env files.)
 const path = require("path");
+if (!process.env.VERCEL) {
+  // eslint-disable-next-line global-require
+  require("dotenv").config({ path: path.join(__dirname, ".env") });
+}
+
+const app = require("./app");
 const express = require("express");
 
 // Local dev: serve the static frontend from `nexus-frontend/`.
