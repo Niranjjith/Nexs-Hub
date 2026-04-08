@@ -182,7 +182,7 @@
     miguel: {
       name: "Shahala Rahshima",
       role: "Partnerships",
-      image: "images/team/Shahala.jpg",
+      image: "/images/team/Shahala.jpg",
       bio:
         "Miguel connects NExs with labs, startups, and alumni who want to mentor or hire. He negotiates lightweight agreements so students can use real datasets and tools ethically.",
       meta: ["Partnerships", "Legal basics", "Alumni"],
