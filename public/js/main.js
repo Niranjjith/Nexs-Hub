@@ -218,9 +218,9 @@
       ],
     },
     miguel: {
-      name: "Shahala Rahshima",
+      name: "Sha Rahshima",
       role: "Partnerships",
-      image: "images/team/Shahala.jpg",
+      image: "images/team/Sha.jpg",
       bio:
         "Miguel connects NExs with labs, startups, and alumni who want to mentor or hire. He negotiates lightweight agreements so students can use real datasets and tools ethically.",
       meta: ["Partnerships", "Legal basics", "Alumni"],
@@ -246,7 +246,7 @@
     nina: {
       name: "Rifad",
       role: "Community",
-      image: "/images/team/Rifu.jpg",
+      image: "/images/team/rifad.jpg",
       bio:
         "Iam grows an inclusive culture: onboarding newcomers, moderating chat, and celebrating wins. She makes sure every voice gets heard in critiques and retros.",
       meta: ["Community", "Comms", "DEI"],
