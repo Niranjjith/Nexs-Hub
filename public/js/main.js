@@ -214,7 +214,7 @@
       ],
     },
     priya: {
-      name: "Athul Isham",
+      name: "Adul Isham",
       role: "Design Lead",
       image: "/images/team/Athul.jpg",
       bio:
