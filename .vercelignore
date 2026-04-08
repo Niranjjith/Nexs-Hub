@@ -1,0 +1,25 @@
+node_modules
+.git
+.gitignore
+README.md
+*.log
+.env
+.env.*
+
+# Python / ML leftovers (safe to ignore if present)
+venv
+__pycache__
+*.pkl
+*.pt
+*.h5
+
+# Cursor / local tooling
+.cursor
+.vscode
+terminals
+agent-transcripts
+
+# Note:
+# - Do NOT ignore `public/images` because the site serves images from there.
+# - Do NOT ignore `models/` because this is your Node/Mongoose runtime code.
+
