@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const path = require("path");
+const fs = require("fs");
 const multer = require("multer");
 
 const Member = require("../models/Member");
@@ -60,6 +61,40 @@ const upload = multer({ storage });
 router.post("/api/upload", requireAdmin, upload.single("file"), (req, res) => {
   if (!req.file) return res.status(400).json({ message: "No file uploaded" });
   res.json({ src: "/uploads/" + req.file.filename });
+});
+
+// List local images/videos under public/images (for picking existing assets)
+router.get("/api/image-library", requireAdmin, async (req, res) => {
+  const root = path.join(__dirname, "..", "public", "images");
+  const allowed = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif", ".mp4"]);
+
+  function walk(dir) {
+    let out = [];
+    let entries = [];
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return out;
+    }
+
+    for (const ent of entries) {
+      const full = path.join(dir, ent.name);
+      if (ent.isDirectory()) {
+        // Skip logo assets (not gallery moments)
+        if (ent.name.toLowerCase() === "logo") continue;
+        out = out.concat(walk(full));
+      } else if (ent.isFile()) {
+        const ext = path.extname(ent.name).toLowerCase();
+        if (!allowed.has(ext)) continue;
+        const rel = full.slice(root.length).replace(/\\/g, "/");
+        out.push("/images" + rel);
+      }
+    }
+    return out;
+  }
+
+  const files = walk(root).sort((a, b) => a.localeCompare(b));
+  res.json(files);
 });
 
 // Admin APIs (CRUD)
