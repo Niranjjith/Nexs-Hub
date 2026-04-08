@@ -61,9 +61,10 @@
       tab === "media" ? "Gallery Media" :
         tab === "team" ? "Meet Our Team" :
           tab === "joinRequests" ? "Join Requests" :
-            tab === "members" ? "Members" : "Announcements";
+            tab === "members" ? "Members" :
+              tab === "announcements" ? "Announcements" : "Admin Settings";
 
-    addBtn.style.display = tab === "joinRequests" ? "none" : "";
+    addBtn.style.display = tab === "joinRequests" || tab === "settings" ? "none" : "";
     loadTab();
   }
 
@@ -210,6 +211,69 @@
         `)
         .join("");
       panelBody.innerHTML = renderTable(["Title", "Description", "Actions"], rows);
+      return;
+    }
+
+    if (activeTab === "settings") {
+      const settings = await api("/admin/api/settings");
+      if (!settings) return;
+      panelBody.innerHTML = `
+        <div class="admin-card">
+          <p class="pill">Change admin username/password</p>
+          <form id="settingsForm" class="dialog-fields" style="margin-top:12px">
+            <label class="field">
+              <span>Username</span>
+              <input name="username" required value="${esc(settings.username || "")}" />
+            </label>
+            <label class="field" style="grid-column:1/-1">
+              <span>New password <span class="pill">leave blank to keep</span></span>
+              <input name="password" type="password" placeholder="••••••••" />
+            </label>
+            <label class="field" style="grid-column:1/-1">
+              <span>Confirm new password</span>
+              <input name="passwordConfirm" type="password" placeholder="••••••••" />
+            </label>
+            <div class="row-actions" style="grid-column:1/-1; justify-content:flex-start; gap:10px">
+              <button class="admin-btn" type="submit">Save settings</button>
+            </div>
+            <p id="settingsMsg" class="pill" style="display:none; margin-top:10px"></p>
+          </form>
+        </div>
+      `;
+
+      const form = document.getElementById("settingsForm");
+      const msg = document.getElementById("settingsMsg");
+      if (form) {
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const fd = new FormData(form);
+          const username = String(fd.get("username") || "").trim();
+          const password = String(fd.get("password") || "");
+          const passwordConfirm = String(fd.get("passwordConfirm") || "");
+
+          if (password && password !== passwordConfirm) {
+            if (msg) {
+              msg.textContent = "Passwords do not match.";
+              msg.style.display = "";
+            }
+            return;
+          }
+
+          const payload = { username };
+          if (password) payload.password = password;
+
+          const res = await api("/admin/api/settings", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (msg) {
+            msg.textContent = res && res.ok ? "Saved. Use the new credentials next login." : (res?.message || "Could not save settings.");
+            msg.style.display = "";
+          }
+        });
+      }
       return;
     }
   }

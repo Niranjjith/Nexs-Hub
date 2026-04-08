@@ -8,6 +8,7 @@
     "seed": "node scripts/seed-admin-data.js"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^4.21.0",

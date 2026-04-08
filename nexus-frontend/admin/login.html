@@ -27,7 +27,10 @@
         </label>
         <label>
           <span>Password</span>
-          <input name="password" type="password" placeholder="admin123" required />
+          <div style="display:flex; gap:10px; align-items:center">
+            <input id="passwordInput" name="password" type="password" placeholder="admin123" required style="flex:1" />
+            <button id="togglePassword" type="button" class="auth-btn" style="padding:10px 12px; width:auto">Show</button>
+          </div>
         </label>
         <button type="submit" class="auth-btn">Login</button>
         <p class="auth-hint">Tip: Default credentials are <strong>admin</strong> / <strong>admin123</strong>.</p>
@@ -41,6 +44,16 @@
   <script>
     const form = document.getElementById("loginForm");
     const err = document.getElementById("loginError");
+    const passwordInput = document.getElementById("passwordInput");
+    const togglePassword = document.getElementById("togglePassword");
+
+    if (togglePassword && passwordInput) {
+      togglePassword.addEventListener("click", () => {
+        const isHidden = passwordInput.type === "password";
+        passwordInput.type = isHidden ? "text" : "password";
+        togglePassword.textContent = isHidden ? "Hide" : "Show";
+      });
+    }
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();

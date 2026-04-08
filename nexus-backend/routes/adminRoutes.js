@@ -2,12 +2,14 @@ const router = require("express").Router();
 const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
+const bcrypt = require("bcryptjs");
 
 const Member = require("../models/Member");
 const Announcement = require("../models/Announcement");
 const TeamMember = require("../models/TeamMember");
 const Media = require("../models/Media");
 const JoinRequest = require("../models/JoinRequest");
+const AdminSettings = require("../models/AdminSettings");
 
 function requireAdmin(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
@@ -15,6 +17,21 @@ function requireAdmin(req, res, next) {
 }
 
 const frontendRoot = path.resolve(__dirname, "..", "..", "nexus-frontend");
+
+async function getOrInitAdminSettings() {
+  const existing = await AdminSettings.findOne({ key: "admin" });
+  if (existing) return existing;
+
+  const defaultUsername = process.env.ADMIN_USERNAME || "admin";
+  const defaultPassword = process.env.ADMIN_PASSWORD || "admin123";
+  const passwordHash = await bcrypt.hash(defaultPassword, 10);
+
+  return await AdminSettings.create({
+    key: "admin",
+    username: defaultUsername,
+    passwordHash,
+  });
+}
 
 // Pages
 router.get("/login", (req, res) => {
@@ -33,9 +50,12 @@ router.get("/dashboard", (req, res) => {
 });
 
 // Auth
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
   const { username, password } = req.body || {};
-  if (username === "admin" && password === "admin123") {
+  const settings = await getOrInitAdminSettings();
+  const okUser = String(username || "") === String(settings.username || "");
+  const okPass = await bcrypt.compare(String(password || ""), settings.passwordHash);
+  if (okUser && okPass) {
     req.session.isAdmin = true;
     return res.json({ ok: true });
   }
@@ -45,6 +65,32 @@ router.post("/login", (req, res) => {
 router.post("/logout", (req, res) => {
   if (!req.session) return res.json({ ok: true });
   req.session.destroy(() => res.json({ ok: true }));
+});
+
+// Admin settings (username/password)
+router.get("/api/settings", requireAdmin, async (req, res) => {
+  const s = await getOrInitAdminSettings();
+  res.json({ username: s.username });
+});
+
+router.put("/api/settings", requireAdmin, async (req, res) => {
+  const { username, password } = req.body || {};
+  const nextUsername = String(username || "").trim();
+  const nextPassword = String(password || "");
+
+  if (!nextUsername) return res.status(400).json({ message: "Username is required" });
+  if (nextPassword && nextPassword.length < 6) {
+    return res.status(400).json({ message: "Password must be at least 6 characters" });
+  }
+
+  const s = await getOrInitAdminSettings();
+  s.username = nextUsername;
+  if (nextPassword) {
+    s.passwordHash = await bcrypt.hash(nextPassword, 10);
+  }
+  s.updatedAt = new Date();
+  await s.save();
+  res.json({ ok: true, username: s.username });
 });
 
 // Uploads
