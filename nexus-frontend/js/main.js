@@ -748,7 +748,7 @@
       return;
     }
 
-    fetch("/api/media")
+    fetch("https://your-backend.onrender.com/api/media")
       .then(function (res) {
         return res.ok ? res.json() : [];
       })
