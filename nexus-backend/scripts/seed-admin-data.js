@@ -11,10 +11,12 @@ const path = require("path");
 
 const TeamMember = require(path.join(__dirname, "..", "models", "TeamMember"));
 const Media = require(path.join(__dirname, "..", "models", "Media"));
+const Announcement = require(path.join(__dirname, "..", "models", "Announcement"));
+const Member = require(path.join(__dirname, "..", "models", "Member"));
 
-const MONGODB_URI =
-  process.env.MONGODB_URI ||
-  "mongodb+srv://niranjjithbathery_db_user:WG9L9JRa7eiSv78y@cluster0.24uzbdb.mongodb.net/?appName=Cluster0";
+// Note: MongoDB database names are case-sensitive on some setups.
+// Keep the default DB name consistent with existing local usage.
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/NExsDB";
 
 function normalizeSrc(src) {
   if (!src) return src;
@@ -165,20 +167,17 @@ async function upsertTeam() {
 
 async function upsertMedia() {
   const items = [
-    { type: "image", src: "/images/NCA07721.jpg", alt: "Students collaborating at laptops", title: "Collaboration", order: 10 },
-    { type: "image", src: "/images/NCA07711.jpg", alt: "Team meeting in modern office", title: "Team meet", order: 20 },
-    { type: "image", src: "/images/NCA07677.jpg", alt: "Developer workspace with code", title: "Build time", order: 30 },
-    { type: "video", src: "/images/fff.mp4", alt: "NeXs gallery video", title: "NeXs video", order: 40 },
-    { type: "image", src: "/images/NCA07737.jpg", alt: "Team working together", title: "Together", order: 50 },
-    { type: "image", src: "/images/NCA07848.jpg", alt: "Handshake partnership", title: "Partnership", order: 60 },
-    { type: "image", src: "/images/NCA07841.jpg", alt: "Analytics and growth", title: "Growth", order: 70 },
-    // Remaining are still Unsplash in gallery.html — seeded as-is so admin can replace them later.
-    { type: "image", src: "https://images.unsplash.com/photo-1517245386807-9b4ed4b7c3a?w=800&q=80", alt: "Presentation in meeting room", title: "Presentation", order: 80 },
-    { type: "image", src: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80", alt: "People working on laptops together", title: "Workshop", order: 90 },
-    { type: "image", src: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&q=80", alt: "Students studying outdoors", title: "Learning", order: 100 },
-    { type: "image", src: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80", alt: "Team workshop brainstorm", title: "Brainstorm", order: 110 },
-    { type: "image", src: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80", alt: "Planning session with documents", title: "Planning", order: 120 },
-    { type: "image", src: "https://images.unsplash.com/photo-1516321318429-f886fddd1453?w=800&q=80", alt: "Audience at tech event", title: "Event", order: 130 },
+    // Seed items currently used across home + gallery pages.
+    // Note: Google Drive "view?usp=sharing" URLs are not direct file URLs; admin can replace them with direct links.
+    { type: "image", src: "/images/NCA07759.JPG", alt: "Students collaborating at laptops", title: "Collaboration", order: 10 },
+    { type: "image", src: "https://drive.google.com/file/d/1zqLo6nDQ4WyJtJpr-Mr6Ecaiom9zApFG/view?usp=sharing", alt: "Team meeting in modern office", title: "Team meet", order: 20 },
+    { type: "video", src: "https://drive.google.com/file/d/1xrCZMGv0bofnm1tLS-z9GDPIATKID0TS/view?usp=sharing", alt: "NeXs gallery video", title: "NeXs video", order: 30 },
+
+    { type: "image", src: "/images/NCA07711.jpg", alt: "Team meeting in modern office", title: "Team meet (local)", order: 40 },
+    { type: "image", src: "/images/NCA07677.jpg", alt: "Developer workspace with code", title: "Build time", order: 50 },
+    { type: "image", src: "/images/NCA07700.jpg", alt: "Team working together", title: "Together", order: 60 },
+    { type: "image", src: "/images/NCA07848.jpg", alt: "Handshake partnership", title: "Partnership", order: 70 },
+    { type: "image", src: "/images/NCA07841.jpg", alt: "Analytics and growth", title: "Growth", order: 80 },
   ];
 
   for (const m of items) {
@@ -197,11 +196,63 @@ async function upsertMedia() {
   }
 }
 
+async function upsertAnnouncements() {
+  const items = [
+    {
+      title: "Welcome to NeXs",
+      description: "New projects, workshops, and mentor sessions are starting soon. Stay tuned for updates.",
+    },
+    {
+      title: "Join the community",
+      description: "Interested in Full Stack, AI/ML, UI/UX, Mobile, or Robotics? Apply via the Join page.",
+    },
+    {
+      title: "Demo day preparation",
+      description: "Teams: keep your repos tidy, write READMEs, and track milestones weekly.",
+    },
+  ];
+
+  for (const a of items) {
+    await Announcement.findOneAndUpdate(
+      { title: a.title },
+      { title: a.title, description: a.description },
+      { upsert: true, new: true }
+    );
+  }
+}
+
+async function upsertMembers() {
+  // Optional starter records so the Admin UI isn't empty on first run.
+  const items = [
+    {
+      name: "Sample Member",
+      role: "Developer",
+      department: "CSE",
+      bio: "Edit or delete this sample from the Admin dashboard.",
+      image: "",
+      linkedin: "",
+      github: "",
+      order: 10,
+      active: false,
+    },
+  ];
+
+  for (const m of items) {
+    await Member.findOneAndUpdate(
+      { name: m.name, role: m.role },
+      m,
+      { upsert: true, new: true }
+    );
+  }
+}
+
 async function main() {
   console.log("Seeding admin data…");
   await mongoose.connect(MONGODB_URI);
   await upsertTeam();
   await upsertMedia();
+  await upsertAnnouncements();
+  await upsertMembers();
   console.log("Seed complete.");
   await mongoose.disconnect();
 }

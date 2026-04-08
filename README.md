@@ -1,6 +1,6 @@
-# NExs (Next eXperience Space)
+# NExs Hub (Next eXperience Space)
 
-Student-driven innovation community website + admin dashboard for managing content (gallery, team, join requests, members).
+Static frontend + Node/Express backend (MongoDB) for a student-driven innovation community website and admin dashboard.
 
 ## Features
 
@@ -28,7 +28,8 @@ Student-driven innovation community website + admin dashboard for managing conte
 
 ## Tech stack
 
-- Node.js + Express
+- Frontend: static HTML/CSS/JS (`nexus-frontend/`)
+- Backend: Node.js + Express (`nexus-backend/`)
 - MongoDB + Mongoose
 - Sessions: `express-session`
 - Uploads: `multer`
@@ -36,45 +37,24 @@ Student-driven innovation community website + admin dashboard for managing conte
 ## Folder structure
 
 ```text
-Nexus/
+Nexs-Hub/
   api/
-    index.js                 # Vercel serverless entry (exports Express app)
-  models/                    # Mongoose schemas
-    Announcement.js
-    JoinRequest.js
-    Media.js
-    Member.js
-    TeamMember.js
-  public/
-    css/
-      style.css              # Public site styles (themes, animations, pages)
-      admin.css              # Admin UI styles
-    js/
-      main.js                # Public site JS (theme toggle, lightbox, dynamic renders)
-      admin.js               # Admin dashboard JS (CRUD UI)
-    images/                  # Local images + fff.mp4 used by gallery/pages
-    uploads/                 # Admin uploads (local dev only)
-  routes/
-    adminRoutes.js           # Admin pages + CRUD APIs + image-library API
-    announcementRoutes.js    # Public announcements API
-    joinRequestRoutes.js     # Public join request submit API
-    mediaRoutes.js           # Public media API (gallery)
-    memberRoutes.js          # Public members API
-    teamRoutes.js            # Public team API
-  scripts/
-    seed-admin-data.js       # Seed initial gallery + team into MongoDB
-  views/
+    index.js                 # Vercel serverless entry -> `nexus-backend/app.js`
+  nexus-backend/
+    app.js                   # Express app (exported; no listen)
+    server.js                # Local dev entry (starts app on :3000)
+    models/                  # Mongoose schemas
+    routes/                  # API routes (public + admin)
+    scripts/                 # Seed scripts
+  nexus-frontend/
     index.html               # Home page
     gallery.html             # Full gallery page
     join.html                # Join page + form
     members.html             # Members page
-    admin/
-      login.html             # Admin login
-      dashboard.html         # Admin dashboard shell
-  app.js                     # Express app (no listen)
-  server.js                  # Local dev entry (starts app on :3000)
-  vercel.json                # Vercel rewrite -> /api/index.js
-  package.json
+    admin/                   # Admin UI pages
+    css/ js/ images/ uploads/
+  vercel.json                # Routes: static frontend + `/api/*` backend
+  package.json               # Root deps for Vercel + local `npm start`
   README.md
 ```
 
@@ -88,17 +68,32 @@ npm install
 
 ### 2) Environment variables (recommended)
 
-Create `.env` in the project root:
+Create a `.env` file (recommended) and set:
 
 - `MONGODB_URI`: your MongoDB connection string
 - `SESSION_SECRET`: long random string for sessions
+- `CORS_ORIGIN`: comma-separated allowed frontend origins (recommended)
 
 Example:
 
 ```bash
 MONGODB_URI="mongodb://127.0.0.1:27017/nexsDB"
 SESSION_SECRET="change_me_to_a_long_random_value"
+CORS_ORIGIN="http://localhost:5173,http://localhost:3000"
 ```
+
+### Important mistake beginners make: CORS
+
+If you forget to enable CORS in the backend, the frontend will fail in the browser.
+
+This repo already enables it in `nexus-backend/app.js`:
+
+```js
+const cors = require("cors");
+app.use(cors());
+```
+
+In production, prefer using `CORS_ORIGIN` so you don’t open your API to every origin.
 
 ### 3) Seed initial data (optional)
 
@@ -184,24 +179,29 @@ Default (as requested):
 
 ## Deploy (Vercel)
 
-This project uses:
+This repo is Vercel-ready:
 
 - `api/index.js` as the Vercel serverless entry (Express app export)
-- `vercel.json` rewrites all routes to `/api/index.js`
+- `vercel.json` serves the static frontend from `nexus-frontend/`
+- `vercel.json` routes `/api/*` to the serverless backend
 
-### Static assets note
+### Backend environment variables on Vercel
 
-- Your images/videos in `public/images` are static assets and should be served by Vercel as static files.
-- The Express app disables `express.static("public")` on Vercel (to avoid bundling large folders into the function).
+Set these in the Vercel Project → Settings → Environment Variables:
+
+- `MONGODB_URI`
+- `SESSION_SECRET`
+- `CORS_ORIGIN` (your frontend’s deployed URL, e.g. `https://your-site.vercel.app`)
 
 ### Uploads note (important)
 
-Admin uploads to `public/uploads` work on **local dev**.
+Admin uploads to `public/uploads` style folders work on **local dev**.
 On Vercel serverless, filesystem is **not persistent**, so uploaded files may disappear between deployments/requests.
 For production uploads, use external storage (e.g. Vercel Blob / S3 / Cloudinary).
 
 ## Security notes
 
 - Change `SESSION_SECRET` for production
+- Do not hardcode database credentials in code. Use `MONGODB_URI` via environment variables.
 - Replace the hardcoded admin credentials with environment variables or a proper auth system for real deployments
 

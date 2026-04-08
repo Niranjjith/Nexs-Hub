@@ -14,9 +14,11 @@ function requireAdmin(req, res, next) {
   return res.status(401).json({ message: "Unauthorized" });
 }
 
+const frontendRoot = path.resolve(__dirname, "..", "..", "nexus-frontend");
+
 // Pages
 router.get("/login", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "views", "admin", "login.html"));
+  res.sendFile(path.join(frontendRoot, "admin", "login.html"));
 });
 
 router.get("/", (req, res) => {
@@ -27,7 +29,7 @@ router.get("/dashboard", (req, res) => {
   if (!(req.session && req.session.isAdmin)) {
     return res.redirect("/admin/login");
   }
-  res.sendFile(path.join(__dirname, "..", "views", "admin", "dashboard.html"));
+  res.sendFile(path.join(frontendRoot, "admin", "dashboard.html"));
 });
 
 // Auth
@@ -48,7 +50,7 @@ router.post("/logout", (req, res) => {
 // Uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "..", "public", "uploads"));
+    cb(null, path.join(frontendRoot, "uploads"));
   },
   filename: function (req, file, cb) {
     const safe = (file.originalname || "file").replace(/[^a-zA-Z0-9._-]/g, "_");
@@ -65,7 +67,7 @@ router.post("/api/upload", requireAdmin, upload.single("file"), (req, res) => {
 
 // List local images/videos under public/images (for picking existing assets)
 router.get("/api/image-library", requireAdmin, async (req, res) => {
-  const root = path.join(__dirname, "..", "public", "images");
+  const root = path.join(frontendRoot, "images");
   const allowed = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif", ".mp4"]);
 
   function walk(dir) {

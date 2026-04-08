@@ -2,8 +2,23 @@ const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
 const session = require("express-session");
+const cors = require("cors");
 
 const app = express();
+
+// Beginner gotcha: without CORS, a separate frontend will fail in the browser.
+// Configure allowed origins via CORS_ORIGIN (comma-separated). Use "*" only for non-cookie APIs.
+const corsOrigins = (process.env.CORS_ORIGIN || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin: corsOrigins.length ? corsOrigins : true,
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -22,9 +37,7 @@ app.use(
   })
 );
 
-const mongoUri =
-  process.env.MONGODB_URI ||
-  "mongodb+srv://niranjjithbathery_db_user:WG9L9JRa7eiSv78y@cluster0.24uzbdb.mongodb.net/?appName=Cluster0";
+const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/NExsDB";
 
 if (mongoose.connection.readyState === 0) {
   mongoose
@@ -40,21 +53,7 @@ app.use("/api/media", require("./routes/mediaRoutes"));
 app.use("/api/join-requests", require("./routes/joinRequestRoutes"));
 app.use("/admin", require("./routes/adminRoutes"));
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "views/index.html"));
-});
-
-app.get("/gallery", (req, res) => {
-  res.sendFile(path.join(__dirname, "views/gallery.html"));
-});
-
-app.get("/join", (req, res) => {
-  res.sendFile(path.join(__dirname, "views/join.html"));
-});
-
-app.get("/members", (req, res) => {
-  res.sendFile(path.join(__dirname, "views/members.html"));
-});
+// Frontend pages are served separately (e.g. `nexus-frontend/` on Vercel).
 
 module.exports = app;
 
