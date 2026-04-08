@@ -929,6 +929,13 @@ html.theme-dark .navbar.is-scrolled {
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.65);
 }
 
+/* Hide theme toggle while lightbox is open */
+body.lightbox-open .theme-fab {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+}
+
 html.theme-dark .theme-fab {
   background: rgba(2, 6, 23, 0.75);
   border-color: rgba(96, 165, 250, 0.35);
@@ -1957,6 +1964,7 @@ a.gallery-view-more {
   position: absolute;
   top: 1.25rem;
   right: 1.25rem;
+  z-index: 3;
   width: 48px;
   height: 48px;
   border: none;
@@ -1978,6 +1986,7 @@ a.gallery-view-more {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
+  z-index: 3;
   width: 52px;
   height: 52px;
   border: 2px solid rgba(255, 255, 255, 0.35);
@@ -2005,8 +2014,43 @@ a.gallery-view-more {
 }
 
 @media (max-width: 700px) {
+  .lightbox {
+    padding: 1rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .lightbox-stage {
+    max-width: 100%;
+    max-height: 70vh;
+    padding-bottom: 74px; /* room for controls */
+  }
+
+  .lightbox-close {
+    top: calc(0.85rem + env(safe-area-inset-top, 0px));
+    right: 0.85rem;
+    width: 44px;
+    height: 44px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  .lightbox-nav {
+    top: auto;
+    bottom: calc(0.85rem + env(safe-area-inset-bottom, 0px));
+    transform: none;
+    width: 56px;
+    height: 56px;
+    background: rgba(0, 0, 0, 0.35);
+    border-color: rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(8px);
+  }
+
+  .lightbox-prev {
+    left: 0.85rem;
+  }
+
   .lightbox-next {
-    top: 70%;
+    right: 0.85rem;
   }
 }
 

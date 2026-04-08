@@ -559,6 +559,7 @@
     if (!lightbox || !slides.length) return;
     currentIndex = index;
     lightbox.hidden = false;
+    document.body.classList.add("lightbox-open");
     document.body.style.overflow = "hidden";
     applySlide(currentIndex, false);
     lightboxClose && lightboxClose.focus();
@@ -567,6 +568,7 @@
   function closeLightbox() {
     if (!lightbox) return;
     lightbox.hidden = true;
+    document.body.classList.remove("lightbox-open");
     document.body.style.overflow = "";
     if (switchTimer) clearTimeout(switchTimer);
     stopVideo();
