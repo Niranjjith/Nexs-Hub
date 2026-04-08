@@ -1,20 +1,5 @@
 {
   "version": 2,
-  "functions": {
-    "api/index.js": {
-      "includeFiles": [
-        "views/**",
-        "routes/**",
-        "models/**",
-        "public/css/**",
-        "public/js/**"
-      ],
-      "excludeFiles": [
-        "public/images/**",
-        "public/uploads/**"
-      ]
-    }
-  },
   "rewrites": [
     { "source": "/(.*)", "destination": "/api/index.js" }
   ]
