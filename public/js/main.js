@@ -104,7 +104,7 @@
     jordan: {
       name: "Nezal Muhammed",
       role: "Programs Lead",
-      image: "images/team/nezal.jpg",
+      image: "images/team/nxl.jpg",
       bio:
         "Jordan runs workshops, office hours, and the event calendar. They translate messy ideas into schedules people can actually follow—without killing creativity.",
       meta: ["Programs", "Events", "CS & HCI"],
