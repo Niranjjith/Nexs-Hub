@@ -168,7 +168,7 @@
     sam: {
       name: "Ansar Ahamed",
       role: "Tech Mentor",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=600&q=80",
+      image: "/images/team/Ansar.jpeg",
       bio:
         "Sam is our go-to for architecture reviews, security basics, and shipping on a deadline. They have shipped production APIs and enjoy helping teams pick the boring technology that scales.",
       meta: ["Backend & DevOps", "Mentor", "Security"],
