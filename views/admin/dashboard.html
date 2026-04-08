@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard · NExs</title>
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+
+<body class="admin-body">
+  <header class="admin-topbar">
+    <div class="admin-topbar-left">
+      <span class="admin-mark">◆</span>
+      <div>
+        <p class="admin-title">NExs Admin</p>
+        <p class="admin-subtitle">Manage content, media, and team profiles</p>
+      </div>
+    </div>
+    <div class="admin-topbar-right">
+      <a class="admin-link" href="/" target="_blank" rel="noopener noreferrer">Open site</a>
+      <button id="logoutBtn" class="admin-btn admin-btn--ghost" type="button">Logout</button>
+    </div>
+  </header>
+
+  <main class="admin-layout">
+    <aside class="admin-sidebar">
+      <button class="nav-item is-active" data-tab="media" type="button">Gallery Media</button>
+      <button class="nav-item" data-tab="team" type="button">Meet Our Team</button>
+      <button class="nav-item" data-tab="members" type="button">Members</button>
+      <button class="nav-item" data-tab="announcements" type="button">Announcements</button>
+    </aside>
+
+    <section class="admin-panel">
+      <div class="panel-head">
+        <h1 id="panelTitle">Gallery Media</h1>
+        <button id="addBtn" class="admin-btn" type="button">Add new</button>
+      </div>
+
+      <div id="panelBody" class="panel-body"></div>
+    </section>
+  </main>
+
+  <dialog id="editorDialog" class="admin-dialog">
+    <form method="dialog" class="dialog-inner" id="editorForm">
+      <div class="dialog-head">
+        <h2 id="dialogTitle">Edit</h2>
+        <button class="dialog-close" value="cancel" aria-label="Close">×</button>
+      </div>
+      <div id="dialogFields" class="dialog-fields"></div>
+      <div class="dialog-actions">
+        <button class="admin-btn admin-btn--ghost" value="cancel" type="button" id="cancelBtn">Cancel</button>
+        <button class="admin-btn" type="submit" id="saveBtn">Save</button>
+      </div>
+      <p class="dialog-hint" id="dialogHint"></p>
+    </form>
+  </dialog>
+
+  <script src="/js/admin.js"></script>
+</body>
+
+</html>
+

@@ -5,6 +5,6 @@ const MemberSchema = new mongoose.Schema({
     role:String,
     department:String,
     linkedin:String
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model("Member",MemberSchema);

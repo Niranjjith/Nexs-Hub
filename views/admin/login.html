@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login · NExs</title>
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+
+<body class="admin-body">
+  <main class="admin-auth">
+    <section class="auth-card">
+      <div class="auth-brand">
+        <span class="auth-mark">◆</span>
+        <div>
+          <h1>NExs Admin</h1>
+          <p>Sign in to manage site content.</p>
+        </div>
+      </div>
+
+      <form id="loginForm" class="auth-form" autocomplete="off">
+        <label>
+          <span>Username</span>
+          <input name="username" placeholder="admin" required />
+        </label>
+        <label>
+          <span>Password</span>
+          <input name="password" type="password" placeholder="admin123" required />
+        </label>
+        <button type="submit" class="auth-btn">Login</button>
+        <p class="auth-hint">Tip: Default credentials are <strong>admin</strong> / <strong>admin123</strong>.</p>
+      </form>
+
+      <p id="loginError" class="auth-error" hidden></p>
+      <a class="auth-back" href="/">← Back to website</a>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("loginForm");
+    const err = document.getElementById("loginError");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      err.hidden = true;
+
+      const fd = new FormData(form);
+      const body = new URLSearchParams(fd);
+
+      const res = await fetch("/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body,
+      });
+
+      if (res.ok) {
+        window.location.href = "/admin/dashboard";
+        return;
+      }
+
+      let msg = "Login failed.";
+      try {
+        const j = await res.json();
+        msg = j.message || msg;
+      } catch { }
+      err.textContent = msg;
+      err.hidden = false;
+    });
+  </script>
+</body>
+
+</html>
+

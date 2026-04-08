@@ -1,5 +1,6 @@
 (function () {
   "use strict";
+  document.documentElement.classList.add("js");
 
   // ——— Theme toggle (Light / Dark) ———
   const themeToggle = document.getElementById("themeToggle");
@@ -90,25 +91,32 @@
 
   // ——— Scroll reveal ———
   const revealEls = document.querySelectorAll(".reveal");
+  let revealObserver = null;
   if (revealEls.length && "IntersectionObserver" in window) {
-    const io = new IntersectionObserver(
+    revealObserver = new IntersectionObserver(
       function (entries) {
         entries.forEach(function (entry) {
           if (entry.isIntersecting) {
             entry.target.classList.add("is-visible");
-            io.unobserve(entry.target);
+            revealObserver.unobserve(entry.target);
           }
         });
       },
       { root: null, rootMargin: "0px 0px -8% 0px", threshold: 0.08 }
     );
     revealEls.forEach(function (el) {
-      io.observe(el);
+      revealObserver.observe(el);
     });
   } else {
     revealEls.forEach(function (el) {
       el.classList.add("is-visible");
     });
+  }
+
+  function ensureVisible(el) {
+    if (!el) return;
+    if (revealObserver) revealObserver.observe(el);
+    else el.classList.add("is-visible");
   }
 
   // ——— Team profile modal ———
@@ -358,6 +366,72 @@
     }, 360);
   }
 
+  function renderTeamFromAPI(list) {
+    var wrap = document.querySelector(".team-scroll");
+    if (!wrap) return false;
+    if (!Array.isArray(list) || list.length === 0) return false;
+
+    // Replace team list
+    wrap.innerHTML = "";
+    TEAM_PROFILES = {};
+
+    list
+      .filter(function (m) {
+        return m && m.active !== false;
+      })
+      .sort(function (a, b) {
+        return (a.order || 0) - (b.order || 0);
+      })
+      .forEach(function (m) {
+        var slug = m.slug || String(m._id || "");
+        TEAM_PROFILES[slug] = {
+          name: m.name,
+          role: m.role,
+          image: m.image || "",
+          bio: m.bio || "",
+          meta: m.meta || [],
+          projects: m.projects || [],
+          social: m.social || [],
+        };
+
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "team-member reveal";
+        btn.setAttribute("role", "listitem");
+        btn.setAttribute("data-team-id", slug);
+        btn.setAttribute("aria-haspopup", "dialog");
+        btn.setAttribute("aria-controls", "teamModal");
+        btn.innerHTML =
+          '<div class="team-avatar">' +
+          '<img src="' +
+          (m.image || "") +
+          '" alt="Portrait of ' +
+          (m.name || "Team member") +
+          '" width="140" height="140" loading="lazy">' +
+          "</div>" +
+          '<span class="team-member-name">' +
+          (m.name || "") +
+          "</span>" +
+          '<span class="team-role">' +
+          (m.role || "") +
+          "</span>" +
+          '<span class="team-tap-hint">View profile</span>';
+        wrap.appendChild(btn);
+        ensureVisible(btn);
+      });
+
+    // attach click handlers
+    wrap.querySelectorAll(".team-member[data-team-id]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-team-id");
+        if (id) openTeamModal(id);
+      });
+    });
+
+    return true;
+  }
+
+  // Existing static team handlers (fallback)
   document.querySelectorAll(".team-member[data-team-id]").forEach(function (btn) {
     btn.addEventListener("click", function () {
       var id = btn.getAttribute("data-team-id");
@@ -371,7 +445,6 @@
   });
 
   // ——— Gallery lightbox ———
-  const galleryItems = document.querySelectorAll(".gallery-item");
   const lightbox = document.getElementById("lightbox");
   const lightboxImg = document.getElementById("lightboxImg");
   const lightboxVideo = document.getElementById("lightboxVideo");
@@ -380,21 +453,25 @@
   const lightboxNext = document.getElementById("lightboxNext");
   const lightboxCounter = document.getElementById("lightboxCounter");
 
-  const slides = [];
-  galleryItems.forEach(function (btn) {
-    const typeAttr = btn.getAttribute("data-gallery-type");
-    if (typeAttr === "video") {
-      const src = btn.getAttribute("data-gallery-src") || "";
-      slides.push({ type: "video", src: src, alt: "Gallery video" });
-      return;
-    }
-    const img = btn.querySelector("img");
-    if (!img) return;
-    slides.push({ type: "image", src: img.src, alt: img.alt || "Gallery image" });
-  });
+  let slides = [];
 
   let currentIndex = 0;
   let switchTimer = null;
+
+  function buildSlidesFromDOM() {
+    slides = [];
+    document.querySelectorAll(".gallery-item").forEach(function (btn) {
+      const typeAttr = btn.getAttribute("data-gallery-type");
+      if (typeAttr === "video") {
+        const src = btn.getAttribute("data-gallery-src") || "";
+        slides.push({ type: "video", src: src, alt: "Gallery video" });
+        return;
+      }
+      const img = btn.querySelector("img");
+      if (!img) return;
+      slides.push({ type: "image", src: img.src, alt: img.alt || "Gallery image" });
+    });
+  }
 
   function updateCounter() {
     if (lightboxCounter && slides.length) {
@@ -481,12 +558,14 @@
     stopVideo();
   }
 
-  galleryItems.forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      const idx = parseInt(btn.getAttribute("data-gallery-index"), 10);
-      openLightbox(isNaN(idx) ? 0 : idx);
+  function attachGalleryHandlers() {
+    document.querySelectorAll(".gallery-item").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const idx = parseInt(btn.getAttribute("data-gallery-index"), 10);
+        openLightbox(isNaN(idx) ? 0 : idx);
+      });
     });
-  });
+  }
 
   if (lightboxClose) lightboxClose.addEventListener("click", closeLightbox);
   if (lightbox) {
@@ -562,4 +641,84 @@
       })
       .catch(function () {});
   }
+
+  // ——— Optional: dynamic content from DB (team + media) ———
+  // If admin has created records, the public pages will render from API.
+  // Otherwise, the existing hardcoded HTML remains.
+  (function initDynamicContent() {
+    // Team
+    fetch("/api/team")
+      .then(function (res) {
+        return res.ok ? res.json() : [];
+      })
+      .then(function (list) {
+        renderTeamFromAPI(list);
+      })
+      .catch(function () {});
+
+    // Media
+    var grids = document.querySelectorAll("#galleryGrid");
+    if (!grids || !grids.length) {
+      buildSlidesFromDOM();
+      attachGalleryHandlers();
+      return;
+    }
+
+    fetch("/api/media")
+      .then(function (res) {
+        return res.ok ? res.json() : [];
+      })
+      .then(function (list) {
+        if (!Array.isArray(list) || list.length === 0) {
+          buildSlidesFromDOM();
+          attachGalleryHandlers();
+          return;
+        }
+
+        var isFull = document.body && document.body.classList.contains("page-gallery");
+        var items = list.filter(function (m) {
+          return m && m.active !== false;
+        });
+
+        if (!isFull) items = items.slice(0, 3);
+
+        grids.forEach(function (grid) {
+          grid.innerHTML = "";
+          items.forEach(function (m, idx) {
+            var btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "gallery-item reveal" + (m.type === "video" ? " gallery-item--video" : "");
+            btn.setAttribute("data-gallery-index", String(idx));
+            if (m.type === "video") {
+              btn.setAttribute("data-gallery-type", "video");
+              btn.setAttribute("data-gallery-src", m.src);
+              btn.setAttribute("aria-label", "Open gallery video");
+              btn.innerHTML =
+                '<video class="gallery-video" src="' +
+                m.src +
+                '" muted playsinline preload="metadata"></video>' +
+                '<span class="gallery-item-zoom">Play</span>';
+            } else {
+              btn.setAttribute("aria-label", "Open gallery image " + (idx + 1));
+              btn.innerHTML =
+                '<img src="' +
+                m.src +
+                '" alt="' +
+                (m.alt || "Gallery image") +
+                '" width="400" height="300" loading="lazy">' +
+                '<span class="gallery-item-zoom">View</span>';
+            }
+            grid.appendChild(btn);
+            ensureVisible(btn);
+          });
+        });
+
+        buildSlidesFromDOM();
+        attachGalleryHandlers();
+      })
+      .catch(function () {
+        buildSlidesFromDOM();
+        attachGalleryHandlers();
+      });
+  })();
 })();
