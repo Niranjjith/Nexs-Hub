@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>NExs Admin</title>
+</head>
+
+<body>
+
+<h1>Admin Dashboard</h1>
+
+<h2>Add Member</h2>
+
+<form id="memberForm">
+
+<input placeholder="Name" name="name">
+<input placeholder="Role" name="role">
+<input placeholder="Department" name="department">
+<input placeholder="Linkedin" name="linkedin">
+
+<button type="submit">Add</button>
+
+</form>
+
+<h2>Add Announcement</h2>
+
+<form id="announcementForm">
+
+<input placeholder="Title" name="title">
+<textarea name="description"></textarea>
+
+<button type="submit">Add</button>
+
+</form>
+
+<script>
+
+document.getElementById("memberForm").onsubmit=async(e)=>{
+
+e.preventDefault()
+
+const data=new FormData(e.target)
+
+await fetch("/admin/add-member",{
+method:"POST",
+body:new URLSearchParams(data)
+})
+
+alert("Member Added")
+
+}
+
+
+document.getElementById("announcementForm").onsubmit=async(e)=>{
+
+e.preventDefault()
+
+const data=new FormData(e.target)
+
+await fetch("/admin/add-announcement",{
+method:"POST",
+body:new URLSearchParams(data)
+})
+
+alert("Announcement Added")
+
+}
+
+</script>
+
+</body>
+
+</html>

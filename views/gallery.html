@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery | NExs Innovation Hub</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="page-gallery">
+
+  <header class="site-header">
+    <nav class="navbar" id="navbar" aria-label="Primary">
+      <a href="/" class="logo" aria-label="NExs home">
+        <span class="logo-mark">◆</span>
+        <span class="logo-text">NExs</span>
+      </a>
+
+      <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navMenu" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <ul class="nav-links" id="navMenu">
+        <li><a href="/">Home</a></li>
+        <li><a href="/#about">About</a></li>
+        <li><a href="/gallery" class="nav-link--current" aria-current="page">Gallery</a></li>
+        <li><a href="/#projects">Projects</a></li>
+        <li><a href="/#team">Team</a></li>
+        <li><a href="/join">Join</a></li>
+        <li class="nav-cta-mobile"><a href="/join" class="btn btn-primary nav-cta-btn">Join NExs</a></li>
+      </ul>
+
+      <a href="/join" class="connect-btn">Join NExs</a>
+    </nav>
+  </header>
+
+  <main class="gallery-page-main">
+    <section class="section gallery-section gallery-section--full" aria-labelledby="gallery-page-title">
+      <div class="section-head reveal">
+        <span class="section-tag">Gallery</span>
+        <h1 id="gallery-page-title">Full gallery</h1>
+        <p class="section-lead">Every moment we have shared so far—click a photo to view it large, or use the arrows in the lightbox.</p>
+        <p class="gallery-back-link">
+          <a href="/" class="gallery-back-btn">← Back to home</a>
+        </p>
+      </div>
+
+      <div class="gallery-grid" id="galleryGrid" role="list">
+        <button type="button" class="gallery-item reveal" data-gallery-index="0" aria-label="Open gallery image 1">
+          <img src="/images/NCA07721.jpg" alt="Students collaborating at laptops" width="400" height="300" loading="lazy">
+          <span class="gallery-item-zoom">View</span>
+        </button>
+        <button type="button" class="gallery-item reveal" data-gallery-index="1" aria-label="Open gallery image 2">
+          <img src="/images/NCA07711.jpg" alt="Team meeting in modern office" width="400" height="300" loading="lazy">
+          <span class="gallery-item-zoom">View</span>
+        </button>
+        <button type="button" class="gallery-item reveal" data-gallery-index="2" aria-label="Open gallery image 3">
+          <img src="/images/NCA07677.jpg" alt="Developer workspace with code" width="400" height="300" loading="lazy">
+          <span class="gallery-item-zoom">View</span>
+        </button>
+        <button type="button" class="gallery-item gallery-item--video reveal" data-gallery-index="3" data-gallery-type="video" data-gallery-src="/images/fff.mp4" aria-label="Open gallery video">
+          <video class="gallery-video" src="/images/fff.mp4" muted playsinline preload="metadata"></video>
+          <span class="gallery-item-zoom">Play</span>
+        </button>
+        <button type="button" class="gallery-item reveal" data-gallery-index="4" aria-label="Open gallery image 4">
+          <img src="/images/NCA07737.jpg" alt="Team working together" width="400" height="300" loading="lazy">
+          <span class="gallery-item-zoom">View</span>
+        </button>
+        <button type="button" class="gallery-item reveal" data-gallery-index="5" aria-label="Open gallery image 5">
+          <img src="/images/NCA07841.jpg" alt="Handshake partnership" width="400" height="300" loading="lazy">
+          <span class="gallery-item-zoom">View</span>
+        </button>
+        <button type="button" class="gallery-item reveal" data-gallery-index="6" aria-label="Open gallery image 6">
+          <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80" alt="Analytics and growth" width="400" height="300" loading="lazy">
+          <span class="gallery-item-zoom">View</span>
+        </button>
+        <button type="button" class="gallery-item reveal" data-gallery-index="7" aria-label="Open gallery image 7">
+          <img src="https://images.unsplash.com/photo-1517245386807-9b4ed4b7c3a?w=800&q=80" alt="Presentation in meeting room" width="400" height="300" loading="lazy">
+          <span class="gallery-item-zoom">View</span>
+        </button>
+        <button type="button" class="gallery-item reveal" data-gallery-index="8" aria-label="Open gallery image 8">
+          <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80" alt="People working on laptops together" width="400" height="300" loading="lazy">
+          <span class="gallery-item-zoom">View</span>
+        </button>
+        <button type="button" class="gallery-item reveal" data-gallery-index="9" aria-label="Open gallery image 9">
+          <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&q=80" alt="Students studying outdoors" width="400" height="300" loading="lazy">
+          <span class="gallery-item-zoom">View</span>
+        </button>
+        <button type="button" class="gallery-item reveal" data-gallery-index="10" aria-label="Open gallery image 10">
+          <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80" alt="Team workshop brainstorm" width="400" height="300" loading="lazy">
+          <span class="gallery-item-zoom">View</span>
+        </button>
+        <button type="button" class="gallery-item reveal" data-gallery-index="11" aria-label="Open gallery image 11">
+          <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80" alt="Planning session with documents" width="400" height="300" loading="lazy">
+          <span class="gallery-item-zoom">View</span>
+        </button>
+        <button type="button" class="gallery-item reveal" data-gallery-index="12" aria-label="Open gallery image 12">
+          <img src="https://images.unsplash.com/photo-1516321318429-f886fddd1453?w=800&q=80" alt="Audience at tech event" width="400" height="300" loading="lazy">
+          <span class="gallery-item-zoom">View</span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image gallery" hidden>
+    <button type="button" class="lightbox-close" id="lightboxClose" aria-label="Close gallery">&times;</button>
+    <button type="button" class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous image">‹</button>
+    <button type="button" class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next image">›</button>
+    <div class="lightbox-stage">
+      <img src="" alt="" id="lightboxImg" class="lightbox-img">
+      <video id="lightboxVideo" class="lightbox-video" controls playsinline></video>
+    </div>
+    <p class="lightbox-counter" id="lightboxCounter" aria-live="polite"></p>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img class="footer-logo" src="/images/Logo/Name%20%26%20Logo%20AUTO.png" alt="Nilgiri College of Arts & Science (Autonomous) logo" loading="lazy">
+        <div class="footer-brand-text">
+          <p class="footer-title">NeXs (Next eXperience Space)</p>
+          <p class="footer-subtitle">Associated with the Department of Multimedia, Nilgiri College of Arts &amp; Science (Autonomous).</p>
+        </div>
+      </div>
+
+      <div class="footer-actions">
+        <a class="footer-mail" href="mailto:hello@nexs.community?subject=NeXs%20Enquiry">Email us</a>
+        <a class="footer-link" href="/">Home</a>
+        <a class="footer-link" href="/join">Join streams</a>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026 NeXs · Nilgiri College</p>
+    </div>
+  </footer>
+
+  <script src="/js/main.js"></script>
+</body>
+
+</html>
