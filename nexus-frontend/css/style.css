@@ -1711,6 +1711,99 @@ html.theme-dark .btn-primary:hover {
   border-radius: 18px;
 }
 
+.launch-spotlight {
+  position: relative;
+  border-radius: 22px;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.4), rgba(255, 255, 255, 0.8), rgba(153, 27, 27, 0.35));
+  box-shadow:
+    0 26px 80px rgba(153, 27, 27, 0.18),
+    0 12px 36px rgba(0, 0, 0, 0.12);
+  transform-style: preserve-3d;
+  perspective: 1200px;
+}
+
+.launch-story-section {
+  background: linear-gradient(180deg, var(--cream) 0%, var(--white) 100%);
+}
+
+.launch-story-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+.launch-story-wrap .launch-spotlight {
+  width: min(100%, 920px);
+}
+
+.launch-spotlight::before {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  z-index: -1;
+  border-radius: 30px;
+  background: radial-gradient(circle at 25% 20%, rgba(239, 68, 68, 0.28), transparent 58%);
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+.launch-spotlight-inner {
+  border-radius: 21px;
+  padding: 1rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 245, 245, 0.88));
+  border: 1px solid rgba(220, 38, 38, 0.18);
+  backdrop-filter: blur(10px);
+  transform: translateZ(0);
+  transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
+}
+
+.launch-spotlight:hover .launch-spotlight-inner {
+  transform: rotateX(2deg) rotateY(-2deg) translateZ(8px);
+  box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.2);
+}
+
+.launch-spotlight h4 {
+  margin: 0.2rem 0 0.45rem;
+  font-size: 1.15rem;
+  color: var(--red-deep);
+}
+
+.launch-spotlight-copy {
+  margin: 0 0 0.8rem;
+  color: var(--muted);
+  font-size: 0.96rem;
+}
+
+.launch-video-shell {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  background: #0b0b0b;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 18px 38px rgba(0, 0, 0, 0.28);
+}
+
+.launch-video-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 42%);
+}
+
+.launch-video {
+  width: 100%;
+  max-height: 560px;
+  display: block;
+  object-fit: cover;
+  aspect-ratio: 16 / 9;
+}
+
 /* Mission & Vision section */
 
 .mission-vision-section {
@@ -2025,6 +2118,163 @@ html.theme-dark .quote-inner::before {
   background: linear-gradient(180deg, var(--cream) 0%, var(--white) 100%);
 }
 
+.page-gallery .gallery-section--full > .section-head,
+.page-gallery .gallery-random-section > .section-head,
+.page-gallery .flipbook-section > .section-head {
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.page-gallery .gallery-section--full > .section-head {
+  margin-bottom: 1.5rem;
+}
+
+.gallery-random-section,
+.flipbook-section {
+  margin-top: 2.1rem;
+}
+
+.gallery-grid--random {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.gallery-grid--random .gallery-item {
+  aspect-ratio: 1 / 1;
+}
+
+.flipbook-section {
+  background: linear-gradient(180deg, var(--white) 0%, var(--cream) 100%);
+}
+
+.flipbook-wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.flipbook-stage {
+  width: min(100%, 980px);
+  aspect-ratio: 16 / 9;
+  position: relative;
+  perspective: 1800px;
+  transform-style: preserve-3d;
+  border-radius: 24px;
+  padding: clamp(10px, 1.6vw, 16px);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.85), rgba(255, 245, 245, 0.86));
+  border: 1px solid rgba(220, 38, 38, 0.18);
+  box-shadow:
+    0 35px 80px rgba(153, 27, 27, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  overflow: hidden;
+}
+
+.flipbook-stage::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 8%;
+  bottom: 8%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(220, 38, 38, 0.16), rgba(220, 38, 38, 0.04));
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.flipbook-page {
+  position: absolute;
+  inset: clamp(10px, 1.6vw, 16px);
+  border-radius: 18px;
+  overflow: hidden;
+  background: #fff;
+  transform-origin: left center;
+  transform: rotateY(-92deg) translateZ(0);
+  opacity: 0;
+  z-index: 1;
+  transition: transform 0.75s var(--ease-out), opacity 0.45s var(--ease-out), filter 0.45s var(--ease-out);
+  box-shadow: 0 26px 56px rgba(0, 0, 0, 0.28);
+}
+
+.flipbook-page img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.flipbook-page.is-active {
+  transform: rotateY(0deg) translateZ(28px);
+  opacity: 1;
+  z-index: 5;
+  filter: saturate(1.02);
+}
+
+.flipbook-page.is-left {
+  transform: rotateY(-72deg) translateX(-11%) translateZ(-30px);
+  opacity: 0.45;
+  z-index: 2;
+  filter: brightness(0.9);
+}
+
+.flipbook-page.is-right {
+  transform: rotateY(72deg) translateX(11%) translateZ(-30px);
+  opacity: 0.45;
+  z-index: 2;
+  filter: brightness(0.9);
+}
+
+.flipbook-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.flipbook-btn {
+  border: 1px solid rgba(220, 38, 38, 0.22);
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.12), rgba(255, 255, 255, 0.9));
+  color: var(--red-deep);
+  border-radius: 999px;
+  padding: 0.62rem 1rem;
+  font-family: var(--font);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out);
+}
+
+.flipbook-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(153, 27, 27, 0.16);
+}
+
+.flipbook-counter {
+  margin: 0;
+  min-width: 70px;
+  text-align: center;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.flipbook-description {
+  margin: 0;
+  max-width: 900px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.98rem;
+}
+
+@media (max-width: 860px) {
+  .flipbook-stage {
+    aspect-ratio: 4 / 3;
+  }
+}
+
 .gallery-grid {
   max-width: 1100px;
   margin: 0 auto;
@@ -2103,6 +2353,22 @@ html.theme-dark .quote-inner::before {
   text-transform: uppercase;
   opacity: 0;
   transition: opacity 0.35s;
+}
+
+.gallery-item-caption {
+  position: absolute;
+  left: 0.55rem;
+  right: 0.55rem;
+  bottom: 0.55rem;
+  z-index: 2;
+  padding: 0.35rem 0.55rem;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(5px);
+  text-align: left;
 }
 
 .gallery-item:hover .gallery-item-zoom {

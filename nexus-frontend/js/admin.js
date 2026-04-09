@@ -230,6 +230,7 @@
             <td><span class="pill">${esc(m.type)}</span></td>
             <td style="max-width:420px; word-break:break-all">${esc(m.src)}</td>
             <td>${esc(m.title || "")}</td>
+            <td style="max-width:280px">${esc(m.description || "")}</td>
             <td>${esc(m.order ?? 0)}</td>
             <td>${m.active ? "Yes" : "No"}</td>
             <td>
@@ -241,7 +242,7 @@
           </tr>
         `)
         .join("");
-      panelBody.innerHTML = renderTable(["Preview", "Type", "Src", "Title", "Order", "Active", "Actions"], rows);
+      panelBody.innerHTML = renderTable(["Preview", "Type", "Src", "Title", "Description", "Order", "Active", "Actions"], rows);
       return;
     }
 
@@ -621,6 +622,7 @@
         </label>` +
         fieldInput("Src", "src", record?.src || "", { full: true, hint: "or paste URL (/uploads/...)" }) +
         fieldInput("Title", "title", record?.title || "") +
+        fieldInput("Description", "description", record?.description || "", { type: "textarea", full: true }) +
         fieldInput("Alt", "alt", record?.alt || "") +
         fieldInput("Order", "order", record?.order ?? 0, { type: "number" }) +
         fieldInput("Active", "active", String(record?.active ?? true), {

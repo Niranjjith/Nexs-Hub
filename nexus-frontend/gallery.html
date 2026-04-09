@@ -101,6 +101,32 @@
           <span class="gallery-item-zoom">View</span>
         </button>
       </div>
+
+      <section class="gallery-random-section" aria-labelledby="randomMomentsTitle">
+        <div class="section-head reveal">
+          <span class="section-tag">Random Moments</span>
+          <h2 id="randomMomentsTitle">Fresh Picks From The Gallery</h2>
+          <p class="section-lead">A rotating mix of highlighted snapshots, selected in a random order each time.</p>
+        </div>
+        <div class="gallery-grid gallery-grid--random" id="randomGalleryGrid" role="list"></div>
+      </section>
+
+      <section class="flipbook-section" aria-labelledby="flipbookTitle">
+        <div class="section-head reveal">
+          <span class="section-tag">Creative Gallery</span>
+          <h2 id="flipbookTitle">NExs 3D Flipbook</h2>
+          <p class="section-lead">Flip through featured moments as a page-turning experience.</p>
+        </div>
+        <div class="flipbook-wrap reveal">
+          <div class="flipbook-stage" id="flipbookStage" aria-live="polite"></div>
+          <p class="flipbook-description" id="flipbookDescription"></p>
+          <div class="flipbook-controls">
+            <button type="button" class="flipbook-btn" id="flipbookPrev" aria-label="Previous page">← Prev</button>
+            <p class="flipbook-counter" id="flipbookCounter">0 / 0</p>
+            <button type="button" class="flipbook-btn" id="flipbookNext" aria-label="Next page">Next →</button>
+          </div>
+        </div>
+      </section>
     </section>
   </main>
 

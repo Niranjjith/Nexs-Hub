@@ -636,6 +636,113 @@
     }
   });
 
+  // ——— 3D Flipbook gallery ———
+  function initFlipbookGallery(items) {
+    const stage = document.getElementById("flipbookStage");
+    const prev = document.getElementById("flipbookPrev");
+    const next = document.getElementById("flipbookNext");
+    const counter = document.getElementById("flipbookCounter");
+    const desc = document.getElementById("flipbookDescription");
+    if (!stage || !prev || !next || !counter) return;
+
+    const pagesData = (items || [])
+      .filter(function (m) { return m && m.type === "image" && m.src; })
+      .slice(0, 8);
+    if (!pagesData.length) {
+      stage.innerHTML = "";
+      counter.textContent = "0 / 0";
+      if (desc) desc.textContent = "No featured images yet.";
+      return;
+    }
+
+    stage.innerHTML = pagesData
+      .map(function (m, idx) {
+        return (
+          '<article class="flipbook-page' +
+          (idx === 0 ? " is-active" : "") +
+          '" data-page="' +
+          idx +
+          '">' +
+          '<img src="' +
+          esc(m.src) +
+          '" alt="' +
+          esc(m.alt || m.title || "Gallery image") +
+          '" loading="lazy">' +
+          "</article>"
+        );
+      })
+      .join("");
+
+    const pages = Array.from(stage.querySelectorAll(".flipbook-page"));
+    let active = 0;
+    function paint() {
+      pages.forEach(function (page, idx) {
+        page.classList.remove("is-active", "is-left", "is-right");
+        if (idx === active) page.classList.add("is-active");
+        else if (idx < active) page.classList.add("is-left");
+        else page.classList.add("is-right");
+      });
+      counter.textContent = active + 1 + " / " + pages.length;
+      if (desc) {
+        const item = pagesData[active] || {};
+        desc.textContent = String(item.description || item.title || item.alt || "");
+      }
+    }
+
+    function go(step) {
+      active = (active + step + pages.length) % pages.length;
+      paint();
+    }
+
+    prev.onclick = function () { go(-1); };
+    next.onclick = function () { go(1); };
+    paint();
+  }
+
+  function renderRandomGallery(items) {
+    var grid = document.getElementById("randomGalleryGrid");
+    if (!grid) return;
+    var picks = (items || [])
+      .filter(function (m) { return m && m.type === "image" && m.src; })
+      .slice();
+    if (!picks.length) {
+      grid.innerHTML = "";
+      return;
+    }
+    for (var i = picks.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = picks[i];
+      picks[i] = picks[j];
+      picks[j] = temp;
+    }
+    picks = picks.slice(0, Math.min(6, picks.length));
+    grid.innerHTML = "";
+    picks.forEach(function (m, idx) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "gallery-item reveal";
+      btn.setAttribute("data-gallery-index", String(idx));
+      btn.setAttribute("aria-label", "Open random gallery image " + (idx + 1));
+      btn.innerHTML =
+        '<img src="' +
+        m.src +
+        '" alt="' +
+        esc(m.alt || m.title || "Gallery image") +
+        '" width="400" height="300" loading="lazy">' +
+        (m.description ? '<span class="gallery-item-caption">' + esc(m.description) + "</span>" : "") +
+        '<span class="gallery-item-zoom">View</span>';
+      grid.appendChild(btn);
+      ensureVisible(btn);
+    });
+  }
+
+  function reindexGalleryItems() {
+    var all = document.querySelectorAll(".gallery-item");
+    all.forEach(function (btn, idx) {
+      btn.setAttribute("data-gallery-index", String(idx));
+    });
+  }
+
   // ——— Members (preview on home + full list on /members) ———
   function renderMembersFromAPI(list) {
     var grid = document.getElementById("membersGrid");
@@ -933,6 +1040,7 @@
                   '<video class="gallery-video" src="' +
                   m.src +
                   '" muted playsinline preload="metadata"></video>' +
+                  (m.description ? '<span class="gallery-item-caption">' + esc(m.description) + "</span>" : "") +
                   '<span class="gallery-item-zoom">Play</span>';
               } else {
                 btn.setAttribute("aria-label", "Open gallery image " + (idx + 1));
@@ -942,6 +1050,7 @@
                   '" alt="' +
                   (m.alt || "Gallery image") +
                   '" width="400" height="300" loading="lazy">' +
+                  (m.description ? '<span class="gallery-item-caption">' + esc(m.description) + "</span>" : "") +
                   '<span class="gallery-item-zoom">View</span>';
               }
               grid.appendChild(btn);
@@ -949,10 +1058,19 @@
             });
           });
 
+          if (isFull) {
+            renderRandomGallery(items);
+            initFlipbookGallery(items);
+          }
+
+          reindexGalleryItems();
           buildSlidesFromDOM();
           attachGalleryHandlers();
         })
         .catch(function () {
+          if (document.body && document.body.classList.contains("page-gallery")) {
+            initFlipbookGallery([]);
+          }
           buildSlidesFromDOM();
           attachGalleryHandlers();
         });
