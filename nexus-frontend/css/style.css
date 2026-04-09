@@ -1591,6 +1591,11 @@ html.theme-dark .btn-primary:hover {
   color: var(--muted);
 }
 
+.about-justified p {
+  text-align: justify;
+  text-justify: inter-word;
+}
+
  .about-actions {
   display: flex;
   flex-wrap: wrap;

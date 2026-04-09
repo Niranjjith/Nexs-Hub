@@ -5,6 +5,7 @@
   const navItems = Array.from(document.querySelectorAll(".nav-item"));
   const panelTitle = document.getElementById("panelTitle");
   const panelBody = document.getElementById("panelBody");
+  const panelActions = document.getElementById("panelActions");
   const addBtn = document.getElementById("addBtn");
 
   const dialog = document.getElementById("editorDialog");
@@ -14,9 +15,64 @@
   const editorForm = document.getElementById("editorForm");
   const cancelBtn = document.getElementById("cancelBtn");
 
-  let activeTab = "media";
+  let activeTab = "overview";
   let editing = null;
   let imageLibrary = null;
+
+  function setPanelActions(tab) {
+    if (!panelActions) return;
+    if (tab === "members") {
+      panelActions.innerHTML = `<button class="admin-btn admin-btn--ghost" type="button" data-panel-action="download-members">Download Members CSV</button>`;
+      return;
+    }
+    if (tab === "overview") {
+      panelActions.innerHTML = `<button class="admin-btn admin-btn--ghost" type="button" data-panel-action="refresh-overview">Refresh</button>`;
+      return;
+    }
+    panelActions.innerHTML = "";
+  }
+
+  function toCsvRow(arr) {
+    return arr
+      .map((v) => {
+        const s = String(v == null ? "" : v);
+        return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+      })
+      .join(",");
+  }
+
+  function downloadMembersCsv(list) {
+    const headers = ["Name", "Role", "Department", "LinkedIn", "GitHub", "Order", "Active"];
+    const rows = (Array.isArray(list) ? list : []).map((m) =>
+      toCsvRow([m.name, m.role, m.department, m.linkedin, m.github, m.order ?? 0, m.active ? "Yes" : "No"])
+    );
+    const csv = [toCsvRow(headers)].concat(rows).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const d = new Date();
+    const stamp = [d.getFullYear(), String(d.getMonth() + 1).padStart(2, "0"), String(d.getDate()).padStart(2, "0")].join("-");
+    a.download = "nexs-members-" + stamp + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function buildProgressList(items) {
+    if (!items.length) return `<p class="overview-meta">No data available yet.</p>`;
+    const max = items[0].count || 1;
+    return `<div class="progress-list">${items
+      .map(
+        (x) => `<div class="progress-row">
+            <strong>${esc(x.label)}</strong>
+            <span>${x.count}</span>
+            <div class="progress-track"><div class="progress-fill" style="width:${Math.max(6, Math.round((x.count / max) * 100))}%"></div></div>
+          </div>`
+      )
+      .join("")}</div>`;
+  }
 
   function getApiBase() {
     try {
@@ -72,7 +128,8 @@
     activeTab = tab;
     navItems.forEach((b) => b.classList.toggle("is-active", b.dataset.tab === tab));
     panelTitle.textContent =
-      tab === "media" ? "Gallery Media" :
+      tab === "overview" ? "Overview" :
+        tab === "media" ? "Gallery Media" :
         tab === "team" ? "Meet Our Team" :
           tab === "joinRequests" ? "Join Requests" :
             tab === "members" ? "Members" :
@@ -80,7 +137,8 @@
                 tab === "projects" ? "Projects" :
                   tab === "homeSettings" ? "Home Settings" : "Admin Settings";
 
-    addBtn.style.display = tab === "joinRequests" || tab === "settings" || tab === "homeSettings" ? "none" : "";
+    setPanelActions(tab);
+    addBtn.style.display = tab === "overview" || tab === "joinRequests" || tab === "settings" || tab === "homeSettings" ? "none" : "";
     loadTab();
   }
 
@@ -99,6 +157,62 @@
 
   async function loadTab() {
     panelBody.innerHTML = `<p class="pill">Loading…</p>`;
+
+    if (activeTab === "overview") {
+      const [members, joinRequests, projects, announcements, team] = await Promise.all([
+        api("/admin/api/members"),
+        api("/admin/api/join-requests"),
+        api("/admin/api/projects"),
+        api("/admin/api/announcements"),
+        api("/admin/api/team"),
+      ]);
+      if (!members || !joinRequests || !projects || !announcements || !team) return;
+
+      const totalMembers = members.length;
+      const activeProjects = projects.filter((p) => p && p.active !== false).length;
+      const pendingRequests = joinRequests.filter((r) => String(r.status || "new").toLowerCase() === "new").length;
+      const totalTeam = team.length;
+
+      const depMap = new Map();
+      members.forEach((m) => {
+        const k = String(m.department || "Uncategorized").trim() || "Uncategorized";
+        depMap.set(k, (depMap.get(k) || 0) + 1);
+      });
+      const topDepartments = Array.from(depMap.entries())
+        .map(([label, count]) => ({ label, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 6);
+
+      const statusOrder = ["new", "contacted", "accepted", "rejected"];
+      const statusMap = new Map();
+      joinRequests.forEach((r) => {
+        const k = String(r.status || "new").toLowerCase();
+        statusMap.set(k, (statusMap.get(k) || 0) + 1);
+      });
+      const requestStatus = statusOrder
+        .map((s) => ({ label: s[0].toUpperCase() + s.slice(1), count: statusMap.get(s) || 0 }))
+        .filter((x) => x.count > 0);
+
+      panelBody.innerHTML = `
+        <section class="overview-grid">
+          <article class="overview-card"><p class="overview-label">Members</p><p class="overview-value">${totalMembers}</p><p class="overview-meta">Total registered members</p></article>
+          <article class="overview-card"><p class="overview-label">Team Profiles</p><p class="overview-value">${totalTeam}</p><p class="overview-meta">Mentors and leads visible</p></article>
+          <article class="overview-card"><p class="overview-label">Active Projects</p><p class="overview-value">${activeProjects}</p><p class="overview-meta">Currently highlighted projects</p></article>
+          <article class="overview-card"><p class="overview-label">New Join Requests</p><p class="overview-value">${pendingRequests}</p><p class="overview-meta">Awaiting initial review</p></article>
+        </section>
+        <section class="admin-sections">
+          <article class="admin-section">
+            <h3>Members by Department</h3>
+            ${buildProgressList(topDepartments)}
+          </article>
+          <article class="admin-section">
+            <h3>Join Request Status Progress</h3>
+            ${buildProgressList(requestStatus)}
+          </article>
+        </section>
+      `;
+      return;
+    }
 
     if (activeTab === "media") {
       const data = await api("/admin/api/media");
@@ -260,7 +374,7 @@
       if (!data) return;
       panelBody.innerHTML = `
         <div class="admin-card">
-          <p class="pill">Home hero + About images</p>
+          <p class="pill">Home hero + About text + About images</p>
           <form id="homeSettingsForm" class="dialog-fields" style="margin-top:12px">
             <label class="field" style="grid-column:1/-1">
               <span>Home hero image URL</span>
@@ -273,6 +387,11 @@
             <label class="field">
               <span>Overlay opacity (0 to 1)</span>
               <input name="heroOverlayOpacity" type="number" min="0" max="1" step="0.05" value="${esc(String(data.heroOverlayOpacity ?? 0.6))}" />
+            </label>
+
+            <label class="field" style="grid-column:1/-1">
+              <span>About passage <span class="pill">use blank line for new paragraph</span></span>
+              <textarea name="aboutText" rows="6" style="min-height:140px">${esc(data.aboutText || "")}</textarea>
             </label>
 
             <label class="field" style="grid-column:1/-1">
@@ -320,6 +439,7 @@
           const payload = {
             heroImage: String(fd.get("heroImage") || ""),
             heroOverlayOpacity: Number(fd.get("heroOverlayOpacity") || 0.6),
+            aboutText: String(fd.get("aboutText") || ""),
             aboutImageMain: String(fd.get("aboutImageMain") || ""),
             aboutImageOne: String(fd.get("aboutImageOne") || ""),
             aboutImageTwo: String(fd.get("aboutImageTwo") || ""),
@@ -834,6 +954,23 @@
     }
   });
 
+  if (panelActions) {
+    panelActions.addEventListener("click", async (e) => {
+      const btn = e.target.closest("button[data-panel-action]");
+      if (!btn) return;
+      const action = btn.getAttribute("data-panel-action");
+      if (action === "refresh-overview") {
+        if (activeTab === "overview") loadTab();
+        return;
+      }
+      if (action === "download-members") {
+        const members = await api("/admin/api/members");
+        if (!members) return;
+        downloadMembersCsv(members);
+      }
+    });
+  }
+
   // Repeatable controls (Team projects/social)
   dialogFields.addEventListener("click", (e) => {
     const add = e.target.closest("button[data-rep-add]");
@@ -894,6 +1031,6 @@
   cancelBtn.addEventListener("click", () => dialog.close());
 
   // Init
-  setActive("media");
+  setActive("overview");
 })();
 

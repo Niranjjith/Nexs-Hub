@@ -42,6 +42,8 @@ async function getOrInitHomeSettings() {
     key: "home",
     heroImage: "/images/home.jpg",
     heroOverlayOpacity: 0.6,
+    aboutText:
+      "NeXs was established as part of the Mini Tech Park initiative to provide a structured, collaborative environment where students can explore ideas, build projects, and gain practical industry-aligned experience.\n\nUnlike classroom-only learning, NeXs emphasizes hands-on development, teamwork, and applied problem-solving. Students contribute to real projects, participate in skill-building sessions, and work with emerging technologies in a delivery-focused setting.",
     aboutImageMain: "/images/NCA07661.jpg",
     aboutImageOne: "/images/NCA07619.JPG",
     aboutImageTwo: "/images/NCA07634.JPG",
@@ -114,6 +116,7 @@ router.get("/api/home-settings", requireAdmin, async (req, res) => {
   res.json({
     heroImage: s.heroImage,
     heroOverlayOpacity: s.heroOverlayOpacity,
+    aboutText: s.aboutText,
     aboutImageMain: s.aboutImageMain,
     aboutImageOne: s.aboutImageOne,
     aboutImageTwo: s.aboutImageTwo,
@@ -129,6 +132,9 @@ router.put("/api/home-settings", requireAdmin, async (req, res) => {
 
   s.heroImage = String(body.heroImage || s.heroImage || "/images/home.jpg").trim();
   s.heroOverlayOpacity = heroOverlayOpacity;
+  if (typeof body.aboutText === "string") {
+    s.aboutText = String(body.aboutText || "").trim();
+  }
   s.aboutImageMain = String(body.aboutImageMain || s.aboutImageMain || "").trim();
   s.aboutImageOne = String(body.aboutImageOne || s.aboutImageOne || "").trim();
   s.aboutImageTwo = String(body.aboutImageTwo || s.aboutImageTwo || "").trim();

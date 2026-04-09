@@ -754,6 +754,20 @@
       if (main && s.aboutImageMain) main.src = String(s.aboutImageMain);
       if (one && s.aboutImageOne) one.src = String(s.aboutImageOne);
       if (two && s.aboutImageTwo) two.src = String(s.aboutImageTwo);
+
+      var aboutTextWrap = document.getElementById("aboutText");
+      if (aboutTextWrap && typeof s.aboutText === "string" && s.aboutText.trim()) {
+        var escText = function (str) {
+          return String(str || "").replace(/[&<>"']/g, function (c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c];
+          });
+        };
+        var parts = s.aboutText
+          .split(/\n\s*\n/g)
+          .map(function (p) { return p.trim(); })
+          .filter(Boolean);
+        aboutTextWrap.innerHTML = parts.map(function (p) { return "<p>" + escText(p) + "</p>"; }).join("");
+      }
     }
 
     function renderProjectsFromAPI(list) {

@@ -26,6 +26,7 @@
 
   <main class="admin-layout">
     <aside class="admin-sidebar">
+      <button class="nav-item" data-tab="overview" type="button">Overview</button>
       <button class="nav-item is-active" data-tab="media" type="button">Gallery Media</button>
       <button class="nav-item" data-tab="team" type="button">Meet Our Team</button>
       <button class="nav-item" data-tab="joinRequests" type="button">Join Requests</button>
@@ -39,7 +40,10 @@
     <section class="admin-panel">
       <div class="panel-head">
         <h1 id="panelTitle">Gallery Media</h1>
-        <button id="addBtn" class="admin-btn" type="button">Add new</button>
+        <div class="panel-head-actions">
+          <div id="panelActions"></div>
+          <button id="addBtn" class="admin-btn" type="button">Add new</button>
+        </div>
       </div>
 
       <div id="panelBody" class="panel-body"></div>
