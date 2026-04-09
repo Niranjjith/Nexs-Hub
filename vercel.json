@@ -7,13 +7,16 @@
     { "src": "/js/(.*)", "dest": "/nexus-frontend/js/$1" },
     { "src": "/images/(.*)", "dest": "/nexus-frontend/images/$1" },
     { "src": "/uploads/(.*)", "dest": "/nexus-frontend/uploads/$1" },
+
+    { "src": "/admin/login/?", "dest": "/nexus-frontend/admin/login.html" },
+    { "src": "/admin/dashboard/?", "dest": "/nexus-frontend/admin/dashboard.html" },
     { "src": "/admin/(.*)", "dest": "/nexus-frontend/admin/$1" },
 
     { "src": "/", "dest": "/nexus-frontend/index.html" },
-    { "src": "/gallery", "dest": "/nexus-frontend/gallery.html" },
-    { "src": "/join", "dest": "/nexus-frontend/join.html" },
-    { "src": "/members", "dest": "/nexus-frontend/members.html" },
-    { "src": "/projects", "dest": "/nexus-frontend/projects.html" }
+    { "src": "/gallery/?", "dest": "/nexus-frontend/gallery.html" },
+    { "src": "/join/?", "dest": "/nexus-frontend/join.html" },
+    { "src": "/members/?", "dest": "/nexus-frontend/members.html" },
+    { "src": "/projects/?", "dest": "/nexus-frontend/projects.html" }
   ]
 }
 
