@@ -2,6 +2,21 @@
   "use strict";
   document.documentElement.classList.add("js");
 
+  function getApiBase() {
+    try {
+      const override = (window.NEXS_API_BASE || "").trim();
+      if (override) return override.replace(/\/+$/, "");
+    } catch {}
+    const host = String(window.location && window.location.hostname ? window.location.hostname : "");
+    if (host.endsWith("vercel.app")) return "https://nexs-hub-1.onrender.com";
+    return "";
+  }
+
+  const API_BASE = getApiBase();
+  function apiUrl(path) {
+    return API_BASE ? API_BASE + path : path;
+  }
+
   // ——— Theme toggle (Light / Dark) ———
   const themeToggle = document.getElementById("themeToggle");
   const rootEl = document.documentElement;
@@ -703,7 +718,7 @@
 
   const announcementsEl = document.getElementById("announcements");
   if (announcementsEl) {
-    fetch("/api/announcements")
+    fetch(apiUrl("/api/announcements"))
       .then(function (res) {
         return res.json();
       })
@@ -837,7 +852,7 @@
     }
 
     // Members
-    fetch("/api/members")
+    fetch(apiUrl("/api/members"))
       .then(function (res) {
         return res.ok ? res.json() : [];
       })
@@ -847,7 +862,7 @@
       .catch(function () {});
 
     // Team
-    fetch("/api/team")
+    fetch(apiUrl("/api/team"))
       .then(function (res) {
         return res.ok ? res.json() : [];
       })
@@ -857,7 +872,7 @@
       .catch(function () {});
 
     // Home settings (hero bg + about images)
-    fetch("/api/home-settings")
+    fetch(apiUrl("/api/home-settings"))
       .then(function (res) {
         return res.ok ? res.json() : null;
       })
@@ -871,7 +886,7 @@
     if (!grids || !grids.length) {
       // Not a gallery page (ex: /projects). Skip gallery rendering but continue other fetches.
     } else {
-      fetch("/api/media")
+      fetch(apiUrl("/api/media"))
         .then(function (res) {
           return res.ok ? res.json() : [];
         })
@@ -930,7 +945,7 @@
     }
 
     // Projects (projects page)
-    fetch("/api/projects")
+    fetch(apiUrl("/api/projects"))
       .then(function (res) {
         return res.ok ? res.json() : [];
       })

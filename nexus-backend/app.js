@@ -6,6 +6,9 @@ const cors = require("cors");
 
 const app = express();
 
+// Render/Vercel sit behind proxies; required for secure cookies over HTTPS.
+app.set("trust proxy", 1);
+
 // Beginner gotcha: without CORS, a separate frontend will fail in the browser.
 // Configure allowed origins via CORS_ORIGIN (comma-separated). Use "*" only for non-cookie APIs.
 const corsOrigins = (process.env.CORS_ORIGIN || "")
@@ -34,6 +37,12 @@ app.use(
     secret: process.env.SESSION_SECRET || "nexs_dev_secret_change_me",
     resave: false,
     saveUninitialized: false,
+    proxy: true,
+    cookie: {
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
+    },
   })
 );
 

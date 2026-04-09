@@ -320,6 +320,21 @@
       const status = document.getElementById("joinFormStatus");
       if (!form || !status) return;
 
+      function getApiBase() {
+        try {
+          const override = (window.NEXS_API_BASE || "").trim();
+          if (override) return override.replace(/\/+$/, "");
+        } catch {}
+        const host = String(window.location && window.location.hostname ? window.location.hostname : "");
+        if (host.endsWith("vercel.app")) return "https://nexs-hub-1.onrender.com";
+        return "";
+      }
+
+      const API_BASE = getApiBase();
+      function apiUrl(path) {
+        return API_BASE ? API_BASE + path : path;
+      }
+
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         status.textContent = "Sending…";
@@ -335,7 +350,7 @@
         if (!payload.commitment) payload.commitment = false;
 
         try {
-          const res = await fetch("/api/join-requests", {
+          const res = await fetch(apiUrl("/api/join-requests"), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),

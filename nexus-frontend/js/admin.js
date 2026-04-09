@@ -18,6 +18,18 @@
   let editing = null;
   let imageLibrary = null;
 
+  function getApiBase() {
+    try {
+      const override = (window.NEXS_API_BASE || "").trim();
+      if (override) return override.replace(/\/+$/, "");
+    } catch {}
+    const host = String(window.location && window.location.hostname ? window.location.hostname : "");
+    if (host.endsWith("vercel.app")) return "https://nexs-hub-1.onrender.com";
+    return "";
+  }
+
+  const API_BASE = getApiBase();
+
   async function getImageLibrary() {
     if (imageLibrary) return imageLibrary;
     const list = await api("/admin/api/image-library");
@@ -36,7 +48,9 @@
   }
 
   async function api(path, options) {
-    const res = await fetch(path, options);
+    const url = API_BASE ? API_BASE + path : path;
+    const opts = Object.assign({ credentials: "include" }, options || {});
+    const res = await fetch(url, opts);
     if (res.status === 401) {
       window.location.href = "/admin/login";
       return null;
@@ -451,7 +465,8 @@
   async function uploadFile(file) {
     const fd = new FormData();
     fd.append("file", file);
-    const res = await fetch("/admin/api/upload", { method: "POST", body: fd });
+    const url = API_BASE ? API_BASE + "/admin/api/upload" : "/admin/api/upload";
+    const res = await fetch(url, { method: "POST", body: fd, credentials: "include" });
     if (res.status === 401) {
       window.location.href = "/admin/login";
       return null;
