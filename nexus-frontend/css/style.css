@@ -18,6 +18,8 @@
   --nav-h: 72px;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --font: "Outfit", system-ui, sans-serif;
+  --home-hero-image: url("/images/home.jpg");
+  --home-hero-overlay-opacity: 0.6;
 }
 
 /* Theme switch (Light -> Dark) */
@@ -1264,7 +1266,7 @@ html.theme-dark .theme-fab-icon {
   inset: -12%;
   background-image:
     linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 245, 245, 0.35)),
-    url("/images/home.jpg");
+    var(--home-hero-image);
   background-size: cover;
   background-position: center;
   filter: blur(18px) saturate(1.05);
@@ -3007,6 +3009,71 @@ html.theme-dark .connect {
   color: var(--muted);
 }
 
+/* Join page: premium dark-mode hero */
+html.theme-dark .page-join {
+  background: linear-gradient(180deg, #020617 0%, #0b1220 100%);
+}
+
+html.theme-dark .join-hero-bg {
+  background:
+    radial-gradient(ellipse 70% 60% at 82% 16%, rgba(59, 130, 246, 0.28) 0%, transparent 52%),
+    radial-gradient(ellipse 55% 50% at 12% 86%, rgba(37, 99, 235, 0.2) 0%, transparent 48%),
+    linear-gradient(165deg, #020617 0%, #0b1220 48%, #0f172a 100%);
+}
+
+html.theme-dark .join-hero-bg::before {
+  background-image:
+    linear-gradient(90deg, rgba(59, 130, 246, 0.08) 1px, transparent 1px),
+    linear-gradient(rgba(59, 130, 246, 0.08) 1px, transparent 1px);
+  animation: joinGridDrift 18s ease-in-out infinite;
+}
+
+html.theme-dark .join-hero-inner {
+  background: rgba(15, 23, 42, 0.58);
+  border: 1px solid rgba(96, 165, 250, 0.24);
+  border-radius: 22px;
+  padding: clamp(1.15rem, 3vw, 1.65rem);
+  box-shadow: 0 24px 70px rgba(2, 6, 23, 0.45);
+  backdrop-filter: blur(12px);
+}
+
+html.theme-dark .join-hero-kicker {
+  color: #93c5fd;
+}
+
+html.theme-dark .join-hero .join-hero-inner h1,
+html.theme-dark .join-hero-lead {
+  color: #f8fafc;
+}
+
+html.theme-dark .join-stat {
+  background: rgba(2, 6, 23, 0.62);
+  border-color: rgba(96, 165, 250, 0.26);
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.4);
+}
+
+html.theme-dark .join-stat strong {
+  background: linear-gradient(120deg, #bfdbfe, #60a5fa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+html.theme-dark .join-stat span {
+  color: rgba(248, 250, 252, 0.78);
+}
+
+@keyframes joinGridDrift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.88;
+  }
+  50% {
+    transform: translate3d(-8px, 6px, 0);
+    opacity: 1;
+  }
+}
+
 .join-section {
   padding: clamp(3rem, 8vw, 5rem) clamp(1.25rem, 4vw, 3rem);
   position: relative;
@@ -3294,6 +3361,24 @@ html.theme-dark .connect {
   color: var(--white);
 }
 
+html.theme-dark .join-cta-panel,
+html.theme-dark .join-cta-panel h2,
+html.theme-dark .join-cta-panel > p {
+  color: #f8fafc;
+}
+
+html.theme-dark .join-cta-mail {
+  background: #2563eb;
+  color: #f8fafc;
+  border-color: rgba(147, 197, 253, 0.45);
+}
+
+html.theme-dark .join-cta-mail:hover {
+  background: #3b82f6;
+  color: #f8fafc;
+  box-shadow: 0 10px 28px rgba(59, 130, 246, 0.38);
+}
+
 a.join-cta-mail,
 a.join-cta-home {
   text-decoration: none;
@@ -3320,4 +3405,62 @@ html.js .reveal.is-visible {
 
 .reveal-delay {
   transition-delay: 0.12s;
+}
+
+/* ===== Dark mode polish: blue-only accents + strong readability ===== */
+html.theme-dark .hero-bg::before {
+  /* Keep home background image clearly visible in dark mode */
+  filter: blur(10px) saturate(1.1) brightness(0.85);
+  opacity: calc(var(--home-hero-overlay-opacity) + 0.22);
+}
+
+html.theme-dark .hero:hover .hero-bg::before {
+  /* Subtle hover response on home hero background */
+  opacity: 0.9;
+  transform: scale(1.09);
+}
+
+html.theme-dark .hero-bg::after {
+  /* Replace red-tinted overlay with blue-tinted overlay */
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 35%, rgba(248, 250, 252, 0.28) 0%, rgba(248, 250, 252, 0.08) 55%, rgba(15, 23, 42, 0.45) 100%),
+    radial-gradient(ellipse 50% 45% at 15% 80%, rgba(59, 130, 246, 0.2) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 45% at 85% 20%, rgba(96, 165, 250, 0.18) 0%, transparent 55%);
+  mix-blend-mode: normal;
+}
+
+html.theme-dark .gallery-item:hover {
+  box-shadow: 0 16px 40px rgba(59, 130, 246, 0.26);
+}
+
+html.theme-dark .gallery-item-zoom {
+  background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.25), rgba(2, 6, 23, 0.42));
+}
+
+html.theme-dark .connect {
+  background: linear-gradient(135deg, #0b2a6f 0%, #1d4ed8 48%, #2563eb 100%);
+}
+
+html.theme-dark .connect-inner h2,
+html.theme-dark .connect-inner p {
+  color: #f8fafc;
+}
+
+html.theme-dark .connect .btn-primary,
+html.theme-dark .connect-main-btn {
+  background: #2563eb;
+  color: #f8fafc;
+  border-color: rgba(147, 197, 253, 0.45);
+}
+
+html.theme-dark .connect .btn-primary:hover,
+html.theme-dark .connect-main-btn:hover {
+  background: #3b82f6;
+  color: #f8fafc;
+  box-shadow: 0 10px 28px rgba(59, 130, 246, 0.38);
+}
+
+html.theme-dark .member-name,
+html.theme-dark .team-member-name {
+  color: #f8fafc;
 }

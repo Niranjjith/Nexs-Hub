@@ -11,6 +11,7 @@ const Media = require("../models/Media");
 const JoinRequest = require("../models/JoinRequest");
 const Project = require("../models/Project");
 const AdminSettings = require("../models/AdminSettings");
+const HomeSettings = require("../models/HomeSettings");
 
 function requireAdmin(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
@@ -31,6 +32,19 @@ async function getOrInitAdminSettings() {
     key: "admin",
     username: defaultUsername,
     passwordHash,
+  });
+}
+
+async function getOrInitHomeSettings() {
+  const existing = await HomeSettings.findOne({ key: "home" });
+  if (existing) return existing;
+  return await HomeSettings.create({
+    key: "home",
+    heroImage: "/images/home.jpg",
+    heroOverlayOpacity: 0.6,
+    aboutImageMain: "/images/NCA07661.jpg",
+    aboutImageOne: "/images/NCA07619.JPG",
+    aboutImageTwo: "/images/NCA07634.JPG",
   });
 }
 
@@ -92,6 +106,35 @@ router.put("/api/settings", requireAdmin, async (req, res) => {
   s.updatedAt = new Date();
   await s.save();
   res.json({ ok: true, username: s.username });
+});
+
+// Home settings (hero + about images)
+router.get("/api/home-settings", requireAdmin, async (req, res) => {
+  const s = await getOrInitHomeSettings();
+  res.json({
+    heroImage: s.heroImage,
+    heroOverlayOpacity: s.heroOverlayOpacity,
+    aboutImageMain: s.aboutImageMain,
+    aboutImageOne: s.aboutImageOne,
+    aboutImageTwo: s.aboutImageTwo,
+  });
+});
+
+router.put("/api/home-settings", requireAdmin, async (req, res) => {
+  const body = req.body || {};
+  const s = await getOrInitHomeSettings();
+
+  const num = Number(body.heroOverlayOpacity);
+  const heroOverlayOpacity = Number.isFinite(num) ? Math.max(0, Math.min(1, num)) : s.heroOverlayOpacity;
+
+  s.heroImage = String(body.heroImage || s.heroImage || "/images/home.jpg").trim();
+  s.heroOverlayOpacity = heroOverlayOpacity;
+  s.aboutImageMain = String(body.aboutImageMain || s.aboutImageMain || "").trim();
+  s.aboutImageOne = String(body.aboutImageOne || s.aboutImageOne || "").trim();
+  s.aboutImageTwo = String(body.aboutImageTwo || s.aboutImageTwo || "").trim();
+
+  await s.save();
+  res.json({ ok: true });
 });
 
 // Uploads

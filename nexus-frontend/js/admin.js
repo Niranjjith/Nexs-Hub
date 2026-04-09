@@ -63,9 +63,10 @@
           tab === "joinRequests" ? "Join Requests" :
             tab === "members" ? "Members" :
               tab === "announcements" ? "Announcements" :
-                tab === "projects" ? "Projects" : "Admin Settings";
+                tab === "projects" ? "Projects" :
+                  tab === "homeSettings" ? "Home Settings" : "Admin Settings";
 
-    addBtn.style.display = tab === "joinRequests" || tab === "settings" ? "none" : "";
+    addBtn.style.display = tab === "joinRequests" || tab === "settings" || tab === "homeSettings" ? "none" : "";
     loadTab();
   }
 
@@ -237,6 +238,104 @@
         `)
         .join("");
       panelBody.innerHTML = renderTable(["Image", "Title", "Status", "Slug", "Order", "Active", "Actions"], rows);
+      return;
+    }
+
+    if (activeTab === "homeSettings") {
+      const data = await api("/admin/api/home-settings");
+      if (!data) return;
+      panelBody.innerHTML = `
+        <div class="admin-card">
+          <p class="pill">Home hero + About images</p>
+          <form id="homeSettingsForm" class="dialog-fields" style="margin-top:12px">
+            <label class="field" style="grid-column:1/-1">
+              <span>Home hero image URL</span>
+              <input name="heroImage" value="${esc(data.heroImage || "")}" />
+            </label>
+            <label class="field" style="grid-column:1/-1">
+              <span>Upload home hero image (optional)</span>
+              <input name="heroFile" type="file" accept="image/*" />
+            </label>
+            <label class="field">
+              <span>Overlay opacity (0 to 1)</span>
+              <input name="heroOverlayOpacity" type="number" min="0" max="1" step="0.05" value="${esc(String(data.heroOverlayOpacity ?? 0.6))}" />
+            </label>
+
+            <label class="field" style="grid-column:1/-1">
+              <span>About image (main)</span>
+              <input name="aboutImageMain" value="${esc(data.aboutImageMain || "")}" />
+            </label>
+            <label class="field" style="grid-column:1/-1">
+              <span>Upload about image (main)</span>
+              <input name="aboutMainFile" type="file" accept="image/*" />
+            </label>
+
+            <label class="field" style="grid-column:1/-1">
+              <span>About image (small 1)</span>
+              <input name="aboutImageOne" value="${esc(data.aboutImageOne || "")}" />
+            </label>
+            <label class="field" style="grid-column:1/-1">
+              <span>Upload about image (small 1)</span>
+              <input name="aboutOneFile" type="file" accept="image/*" />
+            </label>
+
+            <label class="field" style="grid-column:1/-1">
+              <span>About image (small 2)</span>
+              <input name="aboutImageTwo" value="${esc(data.aboutImageTwo || "")}" />
+            </label>
+            <label class="field" style="grid-column:1/-1">
+              <span>Upload about image (small 2)</span>
+              <input name="aboutTwoFile" type="file" accept="image/*" />
+            </label>
+
+            <div class="row-actions" style="grid-column:1/-1; justify-content:flex-start; gap:10px">
+              <button class="admin-btn" type="submit">Save Home Settings</button>
+            </div>
+            <p id="homeSettingsMsg" class="pill" style="display:none; margin-top:10px"></p>
+          </form>
+        </div>
+      `;
+
+      const form = document.getElementById("homeSettingsForm");
+      const msg = document.getElementById("homeSettingsMsg");
+      if (form) {
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const fd = new FormData(form);
+
+          const payload = {
+            heroImage: String(fd.get("heroImage") || ""),
+            heroOverlayOpacity: Number(fd.get("heroOverlayOpacity") || 0.6),
+            aboutImageMain: String(fd.get("aboutImageMain") || ""),
+            aboutImageOne: String(fd.get("aboutImageOne") || ""),
+            aboutImageTwo: String(fd.get("aboutImageTwo") || ""),
+          };
+
+          async function uploadOptional(name, targetKey) {
+            const file = fd.get(name);
+            if (file && file instanceof File && file.size > 0) {
+              const up = await uploadFile(file);
+              if (up && up.src) payload[targetKey] = up.src;
+            }
+          }
+
+          await uploadOptional("heroFile", "heroImage");
+          await uploadOptional("aboutMainFile", "aboutImageMain");
+          await uploadOptional("aboutOneFile", "aboutImageOne");
+          await uploadOptional("aboutTwoFile", "aboutImageTwo");
+
+          const res = await api("/admin/api/home-settings", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (msg) {
+            msg.textContent = res && res.ok ? "Home settings updated." : (res?.message || "Could not save.");
+            msg.style.display = "";
+          }
+        });
+      }
       return;
     }
 

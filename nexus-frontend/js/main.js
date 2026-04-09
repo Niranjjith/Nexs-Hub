@@ -720,6 +720,27 @@
   // If admin has created records, the public pages will render from API.
   // Otherwise, the existing hardcoded HTML remains.
   (function initDynamicContent() {
+    function applyHomeSettings(s) {
+      if (!s || typeof s !== "object") return;
+      var root = document.documentElement;
+
+      if (s.heroImage) {
+        root.style.setProperty("--home-hero-image", 'url("' + String(s.heroImage) + '")');
+      }
+
+      if (typeof s.heroOverlayOpacity === "number" && !isNaN(s.heroOverlayOpacity)) {
+        var op = Math.max(0, Math.min(1, s.heroOverlayOpacity));
+        root.style.setProperty("--home-hero-overlay-opacity", String(op));
+      }
+
+      var main = document.getElementById("aboutImgMain");
+      var one = document.getElementById("aboutImgOne");
+      var two = document.getElementById("aboutImgTwo");
+      if (main && s.aboutImageMain) main.src = String(s.aboutImageMain);
+      if (one && s.aboutImageOne) one.src = String(s.aboutImageOne);
+      if (two && s.aboutImageTwo) two.src = String(s.aboutImageTwo);
+    }
+
     function renderProjectsFromAPI(list) {
       var grid = document.getElementById("projectsGrid");
       if (!grid) return false;
@@ -832,6 +853,16 @@
       })
       .then(function (list) {
         renderTeamFromAPI(list);
+      })
+      .catch(function () {});
+
+    // Home settings (hero bg + about images)
+    fetch("/api/home-settings")
+      .then(function (res) {
+        return res.ok ? res.json() : null;
+      })
+      .then(function (settings) {
+        applyHomeSettings(settings);
       })
       .catch(function () {});
 
